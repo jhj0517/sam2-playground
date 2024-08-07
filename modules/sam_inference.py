@@ -71,13 +71,18 @@ class SamInference:
                 ckpt_path=model_path,
                 device=self.device
             )
-            self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
-            self.mask_generator = SAM2AutomaticMaskGenerator(
-                model=self.model,
-                **self.maskgen_hparams
-            )
         except Exception as e:
             print(f"Layer Divider Extension : Error while Loading SAM2 model! {e}")
+
+    def set_predictors(self):
+        if self.model is None:
+            self.load_model()
+
+        self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
+        self.mask_generator = SAM2AutomaticMaskGenerator(
+            model=self.model,
+            **self.maskgen_hparams
+        )
 
     def generate_mask(self,
                       image: np.ndarray):
@@ -104,10 +109,13 @@ class SamInference:
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
 
-        if self.model is None or self.mask_generator is None or self.model_type != model_type or self.maskgen_hparams != maskgen_hparams:
+        if self.model is None or self.model_type != model_type:
             self.model_type = model_type
-            self.maskgen_hparams = maskgen_hparams
             self.load_model()
+
+        if self.mask_generator is None or self.maskgen_hparams != maskgen_hparams:
+            self.maskgen_hparams = maskgen_hparams
+            self.set_predictors()
 
         masks = self.mask_generator.generate(image)
 
