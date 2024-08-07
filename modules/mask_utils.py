@@ -1,9 +1,8 @@
 import cv2
 import numpy as np
 from typing import Dict, List
-from pycocotools import mask as coco_mask
+import colorsys
 from pytoshop import layers
-import pytoshop
 from pytoshop.enums import BlendMode
 from pytoshop.core import PsdFile
 
@@ -13,7 +12,11 @@ def decode_to_mask(seg: np.ndarray[np.bool_]) -> np.ndarray[np.uint8]:
 
 
 def generate_random_color():
-    return np.random.randint(0, 256), np.random.randint(0, 256), np.random.randint(0, 256)
+    h = np.random.randint(0, 360)
+    s = np.random.randint(70, 100) / 100
+    v = np.random.randint(70, 100) / 100
+    r, g, b = colorsys.hsv_to_rgb(h/360, s, v)
+    return int(r * 255), int(g * 255), int(b * 255)
 
 
 def create_base_layer(image: np.ndarray):
@@ -68,19 +71,31 @@ def create_mask_combined_images(
     masks: List
 ):
     final_result = np.zeros_like(image)
+    used_colors = set()
 
     for info in masks:
         rle = info['segmentation']
         mask = decode_to_mask(rle)
 
-        color = generate_random_color()
+        while True:
+            color = generate_random_color()
+            if color not in used_colors:
+                used_colors.add(color)
+                break
+
         colored_mask = np.zeros_like(image)
-        colored_mask[mask == 1] = color
+        colored_mask[mask > 0] = color
 
-        final_result = cv2.addWeighted(final_result, 1, colored_mask, 0.5, 0)
+        blended = cv2.addWeighted(image, 0.3, colored_mask, 0.7, 0)
+        final_result = np.where(mask[:, :, np.newaxis] > 0, blended, final_result)
 
-    combined_image = cv2.addWeighted(image, 1, final_result, 0.5, 0)
-    return [combined_image, "masked"]
+    combined_image = np.where(final_result != 0, final_result, image)
+
+    hsv = cv2.cvtColor(combined_image, cv2.COLOR_BGR2HSV)
+    hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.5, 0, 255)
+    enhanced = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+    return [enhanced, "Masked"]
 
 
 def insert_psd_layer(
