@@ -33,8 +33,8 @@ with gr.Blocks() as app:
     with gr.Row():
         gallery_output = gr.Gallery(label="Output images will be shown here")
         with gr.Column():
-            output_file = gr.File(label="Generated psd file", scale=8)
-            btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=2)
+            output_file = gr.File(label="Generated psd file", scale=9)
+            btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
 
     params = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh, sld_stability_score_thresh,
               sld_stability_score_offset,
