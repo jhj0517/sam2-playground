@@ -1,5 +1,7 @@
+.idea/
 outputs/
 models/
+venv/
 *.png
 *.jpg
 *.mp4
