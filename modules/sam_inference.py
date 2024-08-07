@@ -7,9 +7,7 @@ from datetime import datetime
 import numpy as np
 
 from modules.model_downloader import (
-    AVAILABLE_MODELS,
-    DEFAULT_MODEL_TYPE,
-    OUTPUT_DIR,
+    AVAILABLE_MODELS, DEFAULT_MODEL_TYPE, OUTPUT_DIR,
     is_sam_exist,
     download_sam_model_url
 )
