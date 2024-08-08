@@ -9,23 +9,24 @@ from modules.utils import open_folder
 
 class App:
     def __init__(self,
-                 args = None):
+                 args=None):
         self.app = gr.Blocks()
         self.args = args
         self.sam_inf = SamInference()
+        self.image_modes = ["Automatic", "Box Prompt"]
+        self.default_mode = self.image_modes[0]
 
     def launch(self):
         with self.app:
             with gr.Row():
                 with gr.Column(scale=5):
-                    with gr.Tabs() as tabs_sources:
-                        with gr.TabItem("Image Input"):
-                            img_input = gr.Image(label="Input image here")
-                        with gr.TabItem("Video Input"):
-                            vid_input = gr.Image(label="Input video here")
+                    img_input = gr.Image(label="Input image here")
 
                 with gr.Column(scale=5):
-                    dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE, choices=self.sam_inf.available_models)
+                    dd_modes = gr.Dropdown(label="Mode", value=self.default_mode,
+                                           choices=self.image_modes)
+                    dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
+                                            choices=self.sam_inf.available_models)
 
                     with gr.Accordion("Mask Parameters", open=False) as mask_hparams:
                         nb_points_per_side = gr.Number(label="points_per_side ", value=64, interactive=True)
@@ -51,7 +52,7 @@ class App:
                     output_file = gr.File(label="Generated psd file", scale=9)
                     btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
 
-            sources = [img_input or vid_input]
+            sources = [img_input]
             model_params = [dd_models]
             auto_mask_hparams = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh,
                                  sld_stability_score_thresh, sld_stability_score_offset, nb_crop_n_layers,
