@@ -1,10 +1,12 @@
 import gradio as gr
+from gradio_image_prompter import ImagePrompter
 import os
 
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
 from modules.paths import OUTPUT_DIR
 from modules.utils import open_folder
+from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE)
 
 
 class App:
@@ -13,18 +15,28 @@ class App:
         self.app = gr.Blocks()
         self.args = args
         self.sam_inf = SamInference()
-        self.image_modes = ["Automatic", "Box Prompt"]
-        self.default_mode = self.image_modes[0]
+        self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
+        self.default_mode = AUTOMATIC_MODE
+
+    @staticmethod
+    def on_mode_change(mode: str):
+        return [
+            gr.Image(visible=mode == AUTOMATIC_MODE),
+            ImagePrompter(visible=mode == BOX_PROMPT_MODE),
+            gr.Accordion(visible=mode == AUTOMATIC_MODE)
+        ]
 
     def launch(self):
         with self.app:
             with gr.Row():
                 with gr.Column(scale=5):
                     img_input = gr.Image(label="Input image here")
+                    img_input_prompter = ImagePrompter(label="Prompt image with Box & Point",
+                                                       visible=self.default_mode == BOX_PROMPT_MODE)
 
                 with gr.Column(scale=5):
-                    dd_modes = gr.Dropdown(label="Mode", value=self.default_mode,
-                                           choices=self.image_modes)
+                    dd_input_modes = gr.Dropdown(label="Image Input Mode", value=self.default_mode,
+                                                 choices=self.image_modes)
                     dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
                                             choices=self.sam_inf.available_models)
 
@@ -63,6 +75,10 @@ class App:
                                inputs=sources + model_params + auto_mask_hparams, outputs=[gallery_output, output_file])
             btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_DIR)),
                                   inputs=None, outputs=None)
+
+            dd_input_modes.change(fn=self.on_mode_change,
+                                  inputs=[dd_input_modes],
+                                  outputs=[img_input, img_input_prompter, mask_hparams])
 
         self.app.queue().launch(inbrowser=True)
 
