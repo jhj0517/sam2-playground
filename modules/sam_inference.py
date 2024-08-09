@@ -91,9 +91,6 @@ class SamInference:
             box=box,
             multimask_output=params["multimask_output"],
         )
-        print(f"masks: {masks}")
-        print(f"scores: {scores}")
-        print(f"logits: {logits}")
         return masks, scores, logits
 
     def divide_layer(self,
@@ -129,20 +126,31 @@ class SamInference:
 
         elif input_mode == BOX_PROMPT_MODE:
             image = image_prompt_input_data["image"]
+            image = np.array(image.convert("RGB"))
             box = image_prompt_input_data["points"]
+            box = np.array([[x1, y1, x2, y2] for x1, y1, _, x2, y2, _ in box])
             predict_image_hparams = {
                 "multimask_output": params[0]
             }
 
-            generated_masks, scores, logits = self.predict_image(
+            predicted_masks, scores, logits = self.predict_image(
                 image=image,
                 model_type=model_type,
                 box=box,
                 **predict_image_hparams
             )
+            generated_masks = self.format_to_auto_result(predicted_masks)
 
         save_psd_with_masks(image, generated_masks, output_path)
         mask_combined_image = create_mask_combined_images(image, generated_masks)
         gallery = create_mask_gallery(image, generated_masks)
 
         return [mask_combined_image] + gallery, output_path
+
+    @staticmethod
+    def format_to_auto_result(
+        masks: np.ndarray
+    ):
+        place_holder = 0
+        result = [{"segmentation": mask, "area": place_holder} for mask in masks]
+        return result

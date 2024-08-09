@@ -37,7 +37,7 @@ class App:
             with gr.Row():
                 with gr.Column(scale=5):
                     img_input = gr.Image(label="Input image here")
-                    img_input_prompter = ImagePrompter(label="Prompt image with Box & Point",
+                    img_input_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
                                                        visible=self.default_mode == BOX_PROMPT_MODE)
 
                 with gr.Column(scale=5):
