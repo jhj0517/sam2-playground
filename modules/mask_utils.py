@@ -7,8 +7,12 @@ from pytoshop.enums import BlendMode
 from pytoshop.core import PsdFile
 
 
-def decode_to_mask(seg: np.ndarray[np.bool_]) -> np.ndarray[np.uint8]:
-    return seg.astype(np.uint8) * 255
+def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarray[np.uint8]:
+
+    if isinstance(seg, np.ndarray) and seg.dtype == np.bool_:
+        return seg.astype(np.uint8) * 255
+    else:
+        return seg.astype(np.uint8)
 
 
 def generate_random_color():
