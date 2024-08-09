@@ -1,6 +1,7 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
+from typing import Dict, List
 import torch
 import os
 from datetime import datetime
@@ -12,6 +13,7 @@ from modules.model_downloader import (
     download_sam_model_url
 )
 from modules.paths import SAM2_CONFIGS_DIR, MODELS_DIR
+from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE
 from modules.mask_utils import (
     save_psd_with_masks,
     create_mask_combined_images,
@@ -62,42 +64,85 @@ class SamInference:
             print(f"Error while Loading SAM2 model! {e}")
 
     def generate_mask(self,
-                      image: np.ndarray):
+                      image: np.ndarray,
+                      model_type: str,
+                      **params):
+        if self.model is None or self.model_type != model_type:
+            self.model_type = model_type
+            self.load_model()
+        self.mask_generator = SAM2AutomaticMaskGenerator(
+            model=self.model,
+            **params
+        )
         return self.mask_generator.generate(image)
 
-    def generate_mask_app(self,
-                          image: np.ndarray,
-                          model_type: str,
-                          *params
-                          ):
-        maskgen_hparams = {
-            'points_per_side': int(params[0]),
-            'points_per_batch': int(params[1]),
-            'pred_iou_thresh': float(params[2]),
-            'stability_score_thresh': float(params[3]),
-            'stability_score_offset': float(params[4]),
-            'crop_n_layers': int(params[5]),
-            'box_nms_thresh': float(params[6]),
-            'crop_n_points_downscale_factor': int(params[7]),
-            'min_mask_region_area': int(params[8]),
-            'use_m2m': bool(params[9])
-        }
+    def predict_image(self,
+                      image: np.ndarray,
+                      model_type: str,
+                      box: np.ndarray,
+                      **params):
+        if self.model is None or self.model_type != model_type:
+            self.model_type = model_type
+            self.load_model()
+        self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
+        self.image_predictor.set_image(image)
+
+        masks, scores, logits = self.image_predictor.predict(
+            box=box,
+            multimask_output=params["multimask_output"],
+        )
+        print(f"masks: {masks}")
+        print(f"scores: {scores}")
+        print(f"logits: {logits}")
+        return masks, scores, logits
+
+    def divide_layer(self,
+                     image_input: np.ndarray,
+                     image_prompt_input_data: Dict,
+                     input_mode: str,
+                     model_type: str,
+                     *params):
         timestamp = datetime.now().strftime("%m%d%H%M%S")
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
 
-        if self.model is None or self.model_type != model_type:
-            self.model_type = model_type
-            self.load_model()
+        if input_mode == AUTOMATIC_MODE:
+            image = image_input
+            maskgen_hparams = {
+                'points_per_side': int(params[0]),
+                'points_per_batch': int(params[1]),
+                'pred_iou_thresh': float(params[2]),
+                'stability_score_thresh': float(params[3]),
+                'stability_score_offset': float(params[4]),
+                'crop_n_layers': int(params[5]),
+                'box_nms_thresh': float(params[6]),
+                'crop_n_points_downscale_factor': int(params[7]),
+                'min_mask_region_area': int(params[8]),
+                'use_m2m': bool(params[9])
+            }
 
-        self.mask_generator = SAM2AutomaticMaskGenerator(
-            model=self.model,
-            **maskgen_hparams
-        )
+            generated_masks = self.generate_mask(
+                image=image,
+                model_type=model_type,
+                **maskgen_hparams
+            )
 
-        masks = self.mask_generator.generate(image)
+        elif input_mode == BOX_PROMPT_MODE:
+            image = image_prompt_input_data["image"]
+            box = image_prompt_input_data["points"]
+            predict_image_hparams = {
+                "multimask_output": params[0]
+            }
 
-        save_psd_with_masks(image, masks, output_path)
-        combined_image = create_mask_combined_images(image, masks)
-        gallery = create_mask_gallery(image, masks)
-        return [combined_image] + gallery, output_path
+            generated_masks, scores, logits = self.predict_image(
+                image=image,
+                model_type=model_type,
+                box=box,
+                **predict_image_hparams
+            )
+
+        save_psd_with_masks(image, generated_masks, output_path)
+        mask_combined_image = create_mask_combined_images(image, generated_masks)
+        gallery = create_mask_gallery(image, generated_masks)
+
+        return [mask_combined_image] + gallery, output_path
