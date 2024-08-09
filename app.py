@@ -1,10 +1,11 @@
 import gradio as gr
 from gradio_image_prompter import ImagePrompter
 import os
+import yaml
 
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
-from modules.paths import OUTPUT_DIR
+from modules.paths import (OUTPUT_DIR, SAM2_CONFIGS_DIR)
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE)
 
@@ -17,6 +18,9 @@ class App:
         self.sam_inf = SamInference()
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = AUTOMATIC_MODE
+        default_param_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
+        with open(default_param_config_path, 'r') as file:
+            self.hparams = yaml.safe_load(file)
 
     @staticmethod
     def on_mode_change(mode: str):
@@ -27,6 +31,8 @@ class App:
         ]
 
     def launch(self):
+        mask_hparams = self.hparams["mask_gen_hparams"]
+
         with self.app:
             with gr.Row():
                 with gr.Column(scale=5):
@@ -40,21 +46,24 @@ class App:
                     dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
                                             choices=self.sam_inf.available_models)
 
-                    with gr.Accordion("Mask Parameters", open=False) as mask_hparams:
-                        nb_points_per_side = gr.Number(label="points_per_side ", value=64, interactive=True)
-                        nb_points_per_batch = gr.Number(label="points_per_batch ", value=128, interactive=True)
-                        sld_pred_iou_thresh = gr.Slider(label="pred_iou_thresh ", value=0.7, minimum=0, maximum=1,
+                    with gr.Accordion("Mask Parameters", open=False) as acc_mask_hparams:
+                        nb_points_per_side = gr.Number(label="points_per_side ", value=mask_hparams["points_per_side"],
+                                                       interactive=True)
+                        nb_points_per_batch = gr.Number(label="points_per_batch ", value=mask_hparams["points_per_batch"],
                                                         interactive=True)
-                        sld_stability_score_thresh = gr.Slider(label="stability_score_thresh ", value=0.92, minimum=0,
-                                                               maximum=1, interactive=True)
-                        sld_stability_score_offset = gr.Slider(label="stability_score_offset ", value=0.7, minimum=0,
-                                                               maximum=1)
-                        nb_crop_n_layers = gr.Number(label="crop_n_layers ", value=1)
-                        sld_box_nms_thresh = gr.Slider(label="box_nms_thresh ", value=0.7, minimum=0,
-                                                       maximum=1)
-                        nb_crop_n_points_downscale_factor = gr.Number(label="crop_n_points_downscale_factor ", value=2)
-                        nb_min_mask_region_area = gr.Number(label="min_mask_region_area ", value=25)
-                        cb_use_m2m = gr.Checkbox(label="use_m2m ", value=True)
+                        sld_pred_iou_thresh = gr.Slider(label="pred_iou_thresh ", value=mask_hparams["pred_iou_thresh"],
+                                                        minimum=0, maximum=1, interactive=True)
+                        sld_stability_score_thresh = gr.Slider(label="stability_score_thresh ", value=mask_hparams["stability_score_thresh"],
+                                                               minimum=0, maximum=1, interactive=True)
+                        sld_stability_score_offset = gr.Slider(label="stability_score_offset ", value=mask_hparams["stability_score_offset"],
+                                                               minimum=0, maximum=1)
+                        nb_crop_n_layers = gr.Number(label="crop_n_layers ", value=mask_hparams["crop_n_layers"],)
+                        sld_box_nms_thresh = gr.Slider(label="box_nms_thresh ", value=mask_hparams["box_nms_thresh"],
+                                                       minimum=0, maximum=1)
+                        nb_crop_n_points_downscale_factor = gr.Number(label="crop_n_points_downscale_factor ",
+                                                                      value=mask_hparams["crop_n_points_downscale_factor"],)
+                        nb_min_mask_region_area = gr.Number(label="min_mask_region_area ", value=mask_hparams["min_mask_region_area"],)
+                        cb_use_m2m = gr.Checkbox(label="use_m2m ", value=mask_hparams["use_m2m"])
 
             with gr.Row():
                 btn_generate = gr.Button("GENERATE", variant="primary")
@@ -78,7 +87,7 @@ class App:
 
             dd_input_modes.change(fn=self.on_mode_change,
                                   inputs=[dd_input_modes],
-                                  outputs=[img_input, img_input_prompter, mask_hparams])
+                                  outputs=[img_input, img_input_prompter, acc_mask_hparams])
 
         self.app.queue().launch(inbrowser=True)
 
