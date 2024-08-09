@@ -73,14 +73,14 @@ class App:
                     output_file = gr.File(label="Generated psd file", scale=9)
                     btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
 
-            sources = [img_input]
+            sources = [img_input, img_input_prompter, dd_input_modes]
             model_params = [dd_models]
             auto_mask_hparams = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh,
                                  sld_stability_score_thresh, sld_stability_score_offset, nb_crop_n_layers,
                                  sld_box_nms_thresh, nb_crop_n_points_downscale_factor, nb_min_mask_region_area,
                                  cb_use_m2m]
 
-            btn_generate.click(fn=self.sam_inf.generate_mask_app,
+            btn_generate.click(fn=self.sam_inf.divide_layer,
                                inputs=sources + model_params + auto_mask_hparams, outputs=[gallery_output, output_file])
             btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_DIR)),
                                   inputs=None, outputs=None)
