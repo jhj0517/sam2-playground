@@ -40,20 +40,7 @@ class SamInference:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.mask_generator = None
         self.image_predictor = None
-
-        # Tunable Parameters , All default values by https://github.com/facebookresearch/segment-anything-2/blob/main/notebooks/automatic_mask_generator_example.ipynb
-        self.maskgen_hparams = {
-            "points_per_side": 64,
-            "points_per_batch": 128,
-            "pred_iou_thresh": 0.7,
-            "stability_score_thresh": 0.92,
-            "stability_score_offset": 0.7,
-            "crop_n_layers": 1,
-            "box_nms_thresh": 0.7,
-            "crop_n_points_downscale_factor": 2,
-            "min_mask_region_area": 25.0,
-            "use_m2m": True,
-        }
+        self.video_predictor = None
 
     def load_model(self):
         config = CONFIGS[self.model_type]
@@ -61,9 +48,9 @@ class SamInference:
         model_path = os.path.join(self.model_dir, filename)
 
         if not is_sam_exist(self.model_type):
-            print(f"\nLayer Divider Extension : No SAM2 model found, downloading {self.model_type} model...")
+            print(f"\nNo SAM2 model found, downloading {self.model_type} model...")
             download_sam_model_url(self.model_type)
-        print("\nLayer Divider Extension : applying configs to model..")
+        print("\nApplying configs to model..")
 
         try:
             self.model = build_sam2(
@@ -72,17 +59,7 @@ class SamInference:
                 device=self.device
             )
         except Exception as e:
-            print(f"Layer Divider Extension : Error while Loading SAM2 model! {e}")
-
-    def set_predictors(self):
-        if self.model is None:
-            self.load_model()
-
-        self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
-        self.mask_generator = SAM2AutomaticMaskGenerator(
-            model=self.model,
-            **self.maskgen_hparams
-        )
+            print(f"Error while Loading SAM2 model! {e}")
 
     def generate_mask(self,
                       image: np.ndarray):
@@ -113,9 +90,10 @@ class SamInference:
             self.model_type = model_type
             self.load_model()
 
-        if self.mask_generator is None or self.maskgen_hparams != maskgen_hparams:
-            self.maskgen_hparams = maskgen_hparams
-            self.set_predictors()
+        self.mask_generator = SAM2AutomaticMaskGenerator(
+            model=self.model,
+            **maskgen_hparams
+        )
 
         masks = self.mask_generator.generate(image)
 
