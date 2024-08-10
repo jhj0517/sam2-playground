@@ -103,25 +103,27 @@ class SamInference:
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
 
+        hparams = {
+            'points_per_side': int(params[0]),
+            'points_per_batch': int(params[1]),
+            'pred_iou_thresh': float(params[2]),
+            'stability_score_thresh': float(params[3]),
+            'stability_score_offset': float(params[4]),
+            'crop_n_layers': int(params[5]),
+            'box_nms_thresh': float(params[6]),
+            'crop_n_points_downscale_factor': int(params[7]),
+            'min_mask_region_area': int(params[8]),
+            'use_m2m': bool(params[9]),
+            'multimask_output': bool(params[10])
+        }
+
         if input_mode == AUTOMATIC_MODE:
             image = image_input
-            maskgen_hparams = {
-                'points_per_side': int(params[0]),
-                'points_per_batch': int(params[1]),
-                'pred_iou_thresh': float(params[2]),
-                'stability_score_thresh': float(params[3]),
-                'stability_score_offset': float(params[4]),
-                'crop_n_layers': int(params[5]),
-                'box_nms_thresh': float(params[6]),
-                'crop_n_points_downscale_factor': int(params[7]),
-                'min_mask_region_area': int(params[8]),
-                'use_m2m': bool(params[9])
-            }
 
             generated_masks = self.generate_mask(
                 image=image,
                 model_type=model_type,
-                **maskgen_hparams
+                **hparams
             )
 
         elif input_mode == BOX_PROMPT_MODE:
@@ -129,15 +131,12 @@ class SamInference:
             image = np.array(image.convert("RGB"))
             box = image_prompt_input_data["points"]
             box = np.array([[x1, y1, x2, y2] for x1, y1, _, x2, y2, _ in box])
-            predict_image_hparams = {
-                "multimask_output": params[0]
-            }
 
             predicted_masks, scores, logits = self.predict_image(
                 image=image,
                 model_type=model_type,
                 box=box,
-                **predict_image_hparams
+                multimask_output=hparams["multimask_output"]
             )
             generated_masks = self.format_to_auto_result(predicted_masks)
 
@@ -152,5 +151,7 @@ class SamInference:
         masks: np.ndarray
     ):
         place_holder = 0
-        result = [{"segmentation": mask, "area": place_holder} for mask in masks]
+        if len(masks) == 1:
+            return [{"segmentation": mask, "area": place_holder} for mask in masks]
+        result = [{"segmentation": mask[0], "area": place_holder} for mask in masks]
         return result
