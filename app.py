@@ -27,11 +27,11 @@ class App:
         return [
             gr.Image(visible=mode == AUTOMATIC_MODE),
             ImagePrompter(visible=mode == BOX_PROMPT_MODE),
-            gr.Accordion(visible=mode == AUTOMATIC_MODE)
+            gr.Accordion(visible=mode == AUTOMATIC_MODE),
         ]
 
     def launch(self):
-        mask_hparams = self.hparams["mask_gen_hparams"]
+        _mask_hparams = self.hparams["mask_hparams"]
 
         with self.app:
             with gr.Row():
@@ -47,23 +47,25 @@ class App:
                                             choices=self.sam_inf.available_models)
 
                     with gr.Accordion("Mask Parameters", open=False) as acc_mask_hparams:
-                        nb_points_per_side = gr.Number(label="points_per_side ", value=mask_hparams["points_per_side"],
+                        nb_points_per_side = gr.Number(label="points_per_side ", value=_mask_hparams["points_per_side"],
                                                        interactive=True)
-                        nb_points_per_batch = gr.Number(label="points_per_batch ", value=mask_hparams["points_per_batch"],
+                        nb_points_per_batch = gr.Number(label="points_per_batch ", value=_mask_hparams["points_per_batch"],
                                                         interactive=True)
-                        sld_pred_iou_thresh = gr.Slider(label="pred_iou_thresh ", value=mask_hparams["pred_iou_thresh"],
+                        sld_pred_iou_thresh = gr.Slider(label="pred_iou_thresh ", value=_mask_hparams["pred_iou_thresh"],
                                                         minimum=0, maximum=1, interactive=True)
-                        sld_stability_score_thresh = gr.Slider(label="stability_score_thresh ", value=mask_hparams["stability_score_thresh"],
+                        sld_stability_score_thresh = gr.Slider(label="stability_score_thresh ", value=_mask_hparams["stability_score_thresh"],
                                                                minimum=0, maximum=1, interactive=True)
-                        sld_stability_score_offset = gr.Slider(label="stability_score_offset ", value=mask_hparams["stability_score_offset"],
+                        sld_stability_score_offset = gr.Slider(label="stability_score_offset ", value=_mask_hparams["stability_score_offset"],
                                                                minimum=0, maximum=1)
-                        nb_crop_n_layers = gr.Number(label="crop_n_layers ", value=mask_hparams["crop_n_layers"],)
-                        sld_box_nms_thresh = gr.Slider(label="box_nms_thresh ", value=mask_hparams["box_nms_thresh"],
+                        nb_crop_n_layers = gr.Number(label="crop_n_layers ", value=_mask_hparams["crop_n_layers"],)
+                        sld_box_nms_thresh = gr.Slider(label="box_nms_thresh ", value=_mask_hparams["box_nms_thresh"],
                                                        minimum=0, maximum=1)
                         nb_crop_n_points_downscale_factor = gr.Number(label="crop_n_points_downscale_factor ",
-                                                                      value=mask_hparams["crop_n_points_downscale_factor"],)
-                        nb_min_mask_region_area = gr.Number(label="min_mask_region_area ", value=mask_hparams["min_mask_region_area"],)
-                        cb_use_m2m = gr.Checkbox(label="use_m2m ", value=mask_hparams["use_m2m"])
+                                                                      value=_mask_hparams["crop_n_points_downscale_factor"],)
+                        nb_min_mask_region_area = gr.Number(label="min_mask_region_area ", value=_mask_hparams["min_mask_region_area"],)
+                        cb_use_m2m = gr.Checkbox(label="use_m2m ", value=_mask_hparams["use_m2m"])
+
+                    cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
 
             with gr.Row():
                 btn_generate = gr.Button("GENERATE", variant="primary")
@@ -75,13 +77,13 @@ class App:
 
             sources = [img_input, img_input_prompter, dd_input_modes]
             model_params = [dd_models]
-            auto_mask_hparams = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh,
-                                 sld_stability_score_thresh, sld_stability_score_offset, nb_crop_n_layers,
-                                 sld_box_nms_thresh, nb_crop_n_points_downscale_factor, nb_min_mask_region_area,
-                                 cb_use_m2m]
+            mask_hparams = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh,
+                            sld_stability_score_thresh, sld_stability_score_offset, nb_crop_n_layers,
+                            sld_box_nms_thresh, nb_crop_n_points_downscale_factor, nb_min_mask_region_area,
+                            cb_use_m2m, cb_multimask_output]
 
             btn_generate.click(fn=self.sam_inf.divide_layer,
-                               inputs=sources + model_params + auto_mask_hparams, outputs=[gallery_output, output_file])
+                               inputs=sources + model_params + mask_hparams, outputs=[gallery_output, output_file])
             btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_DIR)),
                                   inputs=None, outputs=None)
 
