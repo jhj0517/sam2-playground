@@ -74,7 +74,11 @@ class SamInference:
             model=self.model,
             **params
         )
-        return self.mask_generator.generate(image)
+        try:
+            generated_masks = self.mask_generator.generate(image)
+        except Exception as e:
+            raise f"Error while auto generating masks: {e}"
+        return generated_masks
 
     def predict_image(self,
                       image: np.ndarray,
@@ -87,10 +91,13 @@ class SamInference:
         self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
         self.image_predictor.set_image(image)
 
-        masks, scores, logits = self.image_predictor.predict(
-            box=box,
-            multimask_output=params["multimask_output"],
-        )
+        try:
+            masks, scores, logits = self.image_predictor.predict(
+                box=box,
+                multimask_output=params["multimask_output"],
+            )
+        except Exception as e:
+            raise f"Error while predicting image with prompt: {e}"
         return masks, scores, logits
 
     def divide_layer(self,
