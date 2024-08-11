@@ -1,5 +1,6 @@
 import gradio as gr
 from gradio_image_prompter import ImagePrompter
+from typing import List, Dict, Optional, Union
 import os
 import yaml
 
@@ -30,6 +31,27 @@ class App:
             gr.Accordion(visible=mode == AUTOMATIC_MODE),
         ]
 
+    def mask_parameters(self,
+                        hparams: Optional[Dict] = None):
+        if hparams is None:
+            hparams = self.hparams["mask_hparams"]
+        mask_components = [
+            gr.Number(label="points_per_side ", value=hparams["points_per_side"], interactive=True),
+            gr.Number(label="points_per_batch ", value=hparams["points_per_batch"], interactive=True),
+            gr.Slider(label="pred_iou_thresh ", value=hparams["pred_iou_thresh"], minimum=0, maximum=1,
+                      interactive=True),
+            gr.Slider(label="stability_score_thresh ", value=hparams["stability_score_thresh"], minimum=0,
+                      maximum=1, interactive=True),
+            gr.Slider(label="stability_score_offset ", value=hparams["stability_score_offset"], minimum=0,
+                      maximum=1),
+            gr.Number(label="crop_n_layers ", value=hparams["crop_n_layers"]),
+            gr.Slider(label="box_nms_thresh ", value=hparams["box_nms_thresh"], minimum=0, maximum=1),
+            gr.Number(label="crop_n_points_downscale_factor ", value=hparams["crop_n_points_downscale_factor"]),
+            gr.Number(label="min_mask_region_area ", value=hparams["min_mask_region_area"]),
+            gr.Checkbox(label="use_m2m ", value=hparams["use_m2m"])
+        ]
+        return mask_components
+
     def launch(self):
         _mask_hparams = self.hparams["mask_hparams"]
 
@@ -47,23 +69,7 @@ class App:
                                             choices=self.sam_inf.available_models)
 
                     with gr.Accordion("Mask Parameters", open=False) as acc_mask_hparams:
-                        nb_points_per_side = gr.Number(label="points_per_side ", value=_mask_hparams["points_per_side"],
-                                                       interactive=True)
-                        nb_points_per_batch = gr.Number(label="points_per_batch ", value=_mask_hparams["points_per_batch"],
-                                                        interactive=True)
-                        sld_pred_iou_thresh = gr.Slider(label="pred_iou_thresh ", value=_mask_hparams["pred_iou_thresh"],
-                                                        minimum=0, maximum=1, interactive=True)
-                        sld_stability_score_thresh = gr.Slider(label="stability_score_thresh ", value=_mask_hparams["stability_score_thresh"],
-                                                               minimum=0, maximum=1, interactive=True)
-                        sld_stability_score_offset = gr.Slider(label="stability_score_offset ", value=_mask_hparams["stability_score_offset"],
-                                                               minimum=0, maximum=1)
-                        nb_crop_n_layers = gr.Number(label="crop_n_layers ", value=_mask_hparams["crop_n_layers"],)
-                        sld_box_nms_thresh = gr.Slider(label="box_nms_thresh ", value=_mask_hparams["box_nms_thresh"],
-                                                       minimum=0, maximum=1)
-                        nb_crop_n_points_downscale_factor = gr.Number(label="crop_n_points_downscale_factor ",
-                                                                      value=_mask_hparams["crop_n_points_downscale_factor"],)
-                        nb_min_mask_region_area = gr.Number(label="min_mask_region_area ", value=_mask_hparams["min_mask_region_area"],)
-                        cb_use_m2m = gr.Checkbox(label="use_m2m ", value=_mask_hparams["use_m2m"])
+                        mask_hparams_component = self.mask_parameters(_mask_hparams)
 
                     cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
 
@@ -77,16 +83,13 @@ class App:
 
             sources = [img_input, img_input_prompter, dd_input_modes]
             model_params = [dd_models]
-            mask_hparams = [nb_points_per_side, nb_points_per_batch, sld_pred_iou_thresh,
-                            sld_stability_score_thresh, sld_stability_score_offset, nb_crop_n_layers,
-                            sld_box_nms_thresh, nb_crop_n_points_downscale_factor, nb_min_mask_region_area,
-                            cb_use_m2m, cb_multimask_output]
+            mask_hparams = mask_hparams_component + [cb_multimask_output]
+            input_params = sources + model_params + mask_hparams
 
             btn_generate.click(fn=self.sam_inf.divide_layer,
-                               inputs=sources + model_params + mask_hparams, outputs=[gallery_output, output_file])
+                               inputs=input_params, outputs=[gallery_output, output_file])
             btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_DIR)),
                                   inputs=None, outputs=None)
-
             dd_input_modes.change(fn=self.on_mode_change,
                                   inputs=[dd_input_modes],
                                   outputs=[img_input, img_input_prompter, acc_mask_hparams])
