@@ -1,7 +1,7 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from typing import Dict, List
+from typing import Dict, List, Optional
 import torch
 import os
 from datetime import datetime
@@ -83,7 +83,9 @@ class SamInference:
     def predict_image(self,
                       image: np.ndarray,
                       model_type: str,
-                      box: np.ndarray,
+                      box: Optional[np.ndarray] = None,
+                      point_coords: Optional[np.ndarray] = None,
+                      point_labels: Optional[np.ndarray] = None,
                       **params):
         if self.model is None or self.model_type != model_type:
             self.model_type = model_type
@@ -94,6 +96,8 @@ class SamInference:
         try:
             masks, scores, logits = self.image_predictor.predict(
                 box=box,
+                point_coords=point_coords,
+                point_labels=point_labels,
                 multimask_output=params["multimask_output"],
             )
         except Exception as e:
@@ -136,15 +140,24 @@ class SamInference:
         elif input_mode == BOX_PROMPT_MODE:
             image = image_prompt_input_data["image"]
             image = np.array(image.convert("RGB"))
-            box = image_prompt_input_data["points"]
-            if len(box) == 0:
+            prompt = image_prompt_input_data["points"]
+            if len(prompt) == 0:
                 return [image], []
-            box = np.array([[x1, y1, x2, y2] for x1, y1, _, x2, y2, _ in box])
+
+            is_prompt_point = prompt[0][-1] == 4.0
+
+            if is_prompt_point:
+                point_labels = np.array([1 if is_left_click else 0 for x1, y1, is_left_click, x2, y2, _ in prompt])
+                prompt = np.array([[x1, y1] for x1, y1, is_left_click, x2, y2, _ in prompt])
+            else:
+                prompt = np.array([[x1, y1, x2, y2] for x1, y1, is_left_click, x2, y2, _ in prompt])
 
             predicted_masks, scores, logits = self.predict_image(
                 image=image,
                 model_type=model_type,
-                box=box,
+                box=prompt if not is_prompt_point else None,
+                point_coords=prompt if is_prompt_point else None,
+                point_labels=point_labels if is_prompt_point else None,
                 multimask_output=hparams["multimask_output"]
             )
             generated_masks = self.format_to_auto_result(predicted_masks)
