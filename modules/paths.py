@@ -6,8 +6,7 @@ SAM2_CONFIGS_DIR = os.path.join(WEBUI_DIR, "configs")
 OUTPUT_DIR = os.path.join(WEBUI_DIR, "outputs")
 OUTPUT_PSD_DIR = os.path.join(OUTPUT_DIR, "psd")
 
-for dir_path in [WEBUI_DIR,
-                 MODELS_DIR,
+for dir_path in [MODELS_DIR,
                  SAM2_CONFIGS_DIR,
                  OUTPUT_DIR,
                  OUTPUT_PSD_DIR]:
