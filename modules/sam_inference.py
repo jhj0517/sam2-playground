@@ -19,6 +19,7 @@ from modules.mask_utils import (
     create_mask_combined_images,
     create_mask_gallery
 )
+from modules.logger_util import get_logger
 
 CONFIGS = {
     "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_t.yaml"),
@@ -26,6 +27,7 @@ CONFIGS = {
     "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_b+.yaml"),
     "sam2_hiera_large": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_l.yaml"),
 }
+logger = get_logger()
 
 
 class SamInference:
@@ -77,6 +79,7 @@ class SamInference:
         try:
             generated_masks = self.mask_generator.generate(image)
         except Exception as e:
+            logger.exception("Error while auto generating masks")
             raise f"Error while auto generating masks: {e}"
         return generated_masks
 
@@ -101,6 +104,7 @@ class SamInference:
                 multimask_output=params["multimask_output"],
             )
         except Exception as e:
+            logger.exception("Error while predicting image with prompt")
             raise f"Error while predicting image with prompt: {e}"
         return masks, scores, logits
 
