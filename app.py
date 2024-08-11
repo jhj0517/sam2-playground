@@ -18,7 +18,7 @@ class App:
         self.args = args
         self.sam_inf = SamInference()
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
-        self.default_mode = AUTOMATIC_MODE
+        self.default_mode = BOX_PROMPT_MODE
         default_param_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
         with open(default_param_config_path, 'r') as file:
             self.hparams = yaml.safe_load(file)
@@ -58,7 +58,7 @@ class App:
         with self.app:
             with gr.Row():
                 with gr.Column(scale=5):
-                    img_input = gr.Image(label="Input image here")
+                    img_input = gr.Image(label="Input image here", visible=self.default_mode == AUTOMATIC_MODE)
                     img_input_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
                                                        visible=self.default_mode == BOX_PROMPT_MODE)
 
@@ -68,7 +68,7 @@ class App:
                     dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
                                             choices=self.sam_inf.available_models)
 
-                    with gr.Accordion("Mask Parameters", open=False) as acc_mask_hparams:
+                    with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
                         mask_hparams_component = self.mask_parameters(_mask_hparams)
 
                     cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
