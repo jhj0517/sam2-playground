@@ -6,7 +6,7 @@ import yaml
 
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
-from modules.paths import (OUTPUT_DIR, SAM2_CONFIGS_DIR)
+from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR)
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE)
 
@@ -88,7 +88,7 @@ class App:
 
             btn_generate.click(fn=self.sam_inf.divide_layer,
                                inputs=input_params, outputs=[gallery_output, output_file])
-            btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_DIR)),
+            btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_PSD_DIR)),
                                   inputs=None, outputs=None)
             dd_input_modes.change(fn=self.on_mode_change,
                                   inputs=[dd_input_modes],
