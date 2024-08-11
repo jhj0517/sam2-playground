@@ -381,7 +381,11 @@ class SAM2ImagePredictor:
             # we merge "boxes" and "points" into a single "concat_points" input (where
             # boxes are added at the beginning) to sam_prompt_encoder
             if concat_points is not None:
-                if concat_points[0].size(1) > 1 or concat_points[1].size(1) > 1:
+                if (concat_points[0].size(0) > 1 or
+                    concat_points[1].size(0) > 1 or
+                    box_coords.size(0) > 1 or
+                    box_labels.size(0) > 1):
+
                     logger.warning(" Box and point combination only works if there's "
                                    "only one dot and one box. Using only the first one...")
                     concat_points = (concat_points[0][:, :1, :], concat_points[1][:, :1])
