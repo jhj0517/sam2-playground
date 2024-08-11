@@ -52,9 +52,9 @@ class SamInference:
         model_path = os.path.join(self.model_dir, filename)
 
         if not is_sam_exist(self.model_type):
-            print(f"\nNo SAM2 model found, downloading {self.model_type} model...")
+            logger.info(f"No SAM2 model found, downloading {self.model_type} model...")
             download_sam_model_url(self.model_type)
-        print("\nApplying configs to model..")
+        logger.info(f"Applying configs to model..")
 
         try:
             self.model = build_sam2(
@@ -63,7 +63,8 @@ class SamInference:
                 device=self.device
             )
         except Exception as e:
-            print(f"Error while Loading SAM2 model! {e}")
+            logger.exception("Error while auto generating masks")
+            raise f"Error while Loading SAM2 model! {e}"
 
     def generate_mask(self,
                       image: np.ndarray,
