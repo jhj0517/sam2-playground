@@ -137,6 +137,8 @@ class SamInference:
             image = image_prompt_input_data["image"]
             image = np.array(image.convert("RGB"))
             box = image_prompt_input_data["points"]
+            if len(box) == 0:
+                return [image], []
             box = np.array([[x1, y1, x2, y2] for x1, y1, _, x2, y2, _ in box])
 
             predicted_masks, scores, logits = self.predict_image(
@@ -158,7 +160,7 @@ class SamInference:
         masks: np.ndarray
     ):
         place_holder = 0
-        if len(masks) == 1:
-            return [{"segmentation": mask, "area": place_holder} for mask in masks]
+        if len(masks.shape) <= 3:
+            masks = np.expand_dims(masks, axis=0)
         result = [{"segmentation": mask[0], "area": place_holder} for mask in masks]
         return result
