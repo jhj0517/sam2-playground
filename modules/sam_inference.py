@@ -144,20 +144,21 @@ class SamInference:
             if len(prompt) == 0:
                 return [image], []
 
-            is_prompt_point = prompt[0][-1] == 4.0
+            point_labels, point_coords, box = [], [], []
 
-            if is_prompt_point:
-                point_labels = np.array([1 if is_left_click else 0 for x1, y1, is_left_click, x2, y2, _ in prompt])
-                prompt = np.array([[x1, y1] for x1, y1, is_left_click, x2, y2, _ in prompt])
-            else:
-                prompt = np.array([[x1, y1, x2, y2] for x1, y1, is_left_click, x2, y2, _ in prompt])
+            for x1, y1, left_click_indicator, x2, y2, point_indicator in prompt:
+                if point_indicator == 4.0:
+                    point_labels.append(left_click_indicator)
+                    point_coords.append([x1, y1])
+                else:
+                    box.append([x1, y1, x2, y2])
 
             predicted_masks, scores, logits = self.predict_image(
                 image=image,
                 model_type=model_type,
-                box=prompt if not is_prompt_point else None,
-                point_coords=prompt if is_prompt_point else None,
-                point_labels=point_labels if is_prompt_point else None,
+                box=np.array(box) if box else None,
+                point_coords=np.array(point_coords) if point_coords else None,
+                point_labels=np.array(point_labels) if point_labels else None,
                 multimask_output=hparams["multimask_output"]
             )
             generated_masks = self.format_to_auto_result(predicted_masks)
