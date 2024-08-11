@@ -23,14 +23,6 @@ class App:
         with open(default_param_config_path, 'r') as file:
             self.hparams = yaml.safe_load(file)
 
-    @staticmethod
-    def on_mode_change(mode: str):
-        return [
-            gr.Image(visible=mode == AUTOMATIC_MODE),
-            ImagePrompter(visible=mode == BOX_PROMPT_MODE),
-            gr.Accordion(visible=mode == AUTOMATIC_MODE),
-        ]
-
     def mask_parameters(self,
                         hparams: Optional[Dict] = None):
         if hparams is None:
@@ -51,6 +43,14 @@ class App:
             gr.Checkbox(label="use_m2m ", value=hparams["use_m2m"])
         ]
         return mask_components
+
+    @staticmethod
+    def on_mode_change(mode: str):
+        return [
+            gr.Image(visible=mode == AUTOMATIC_MODE),
+            ImagePrompter(visible=mode == BOX_PROMPT_MODE),
+            gr.Accordion(visible=mode == AUTOMATIC_MODE),
+        ]
 
     def launch(self):
         _mask_hparams = self.hparams["mask_hparams"]
