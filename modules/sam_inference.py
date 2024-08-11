@@ -21,7 +21,7 @@ from modules.mask_utils import (
 )
 from modules.logger_util import get_logger
 
-CONFIGS = {
+MODEL_CONFIGS = {
     "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_t.yaml"),
     "sam2_hiera_small": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_s.yaml"),
     "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_b+.yaml"),
@@ -48,7 +48,7 @@ class SamInference:
 
     def load_model(self,
                    load_video_predictor: bool = False):
-        config = CONFIGS[self.model_type]
+        config = MODEL_CONFIGS[self.model_type]
         filename, url = AVAILABLE_MODELS[self.model_type]
         model_path = os.path.join(self.model_dir, filename)
 
