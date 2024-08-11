@@ -1,5 +1,5 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
-from sam2.build_sam import build_sam2
+from sam2.build_sam import build_sam2, build_sam2_video_predictor
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from typing import Dict, List, Optional
 import torch
@@ -46,7 +46,8 @@ class SamInference:
         self.image_predictor = None
         self.video_predictor = None
 
-    def load_model(self):
+    def load_model(self,
+                   load_video_predictor: bool = False):
         config = CONFIGS[self.model_type]
         filename, url = AVAILABLE_MODELS[self.model_type]
         model_path = os.path.join(self.model_dir, filename)
@@ -56,6 +57,17 @@ class SamInference:
             download_sam_model_url(self.model_type)
         logger.info(f"Applying configs to model..")
 
+        if load_video_predictor:
+            try:
+                self.model = build_sam2_video_predictor(
+                    config_file=config,
+                    ckpt_path=model_path,
+                    device=self.device
+                )
+            except Exception as e:
+                logger.exception("Error while loading SAM2 model for video predictor")
+                raise f"Error while loading SAM2 model for video predictor!: {e}"
+
         try:
             self.model = build_sam2(
                 config_file=config,
@@ -63,8 +75,8 @@ class SamInference:
                 device=self.device
             )
         except Exception as e:
-            logger.exception("Error while auto generating masks")
-            raise f"Error while Loading SAM2 model! {e}"
+            logger.exception("Error while loading SAM2 model")
+            raise f"Error while loading SAM2 model!: {e}"
 
     def generate_mask(self,
                       image: np.ndarray,
@@ -81,7 +93,7 @@ class SamInference:
             generated_masks = self.mask_generator.generate(image)
         except Exception as e:
             logger.exception("Error while auto generating masks")
-            raise f"Error while auto generating masks: {e}"
+            raise f"Error while auto generating masks: str({e})"
         return generated_masks
 
     def predict_image(self,
@@ -106,8 +118,12 @@ class SamInference:
             )
         except Exception as e:
             logger.exception("Error while predicting image with prompt")
-            raise f"Error while predicting image with prompt: {e}"
+            raise f"Error while predicting image with prompt: {str(e)}"
         return masks, scores, logits
+
+    def predict_video(self,
+                      video_input):
+        pass
 
     def divide_layer(self,
                      image_input: np.ndarray,
@@ -119,6 +135,7 @@ class SamInference:
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
 
+        # Pre-processed gradio components
         hparams = {
             'points_per_side': int(params[0]),
             'points_per_batch': int(params[1]),
@@ -171,8 +188,9 @@ class SamInference:
         save_psd_with_masks(image, generated_masks, output_path)
         mask_combined_image = create_mask_combined_images(image, generated_masks)
         gallery = create_mask_gallery(image, generated_masks)
+        gallery = [mask_combined_image] + gallery
 
-        return [mask_combined_image] + gallery, output_path
+        return gallery, output_path
 
     @staticmethod
     def format_to_auto_result(
