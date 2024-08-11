@@ -16,6 +16,10 @@ from sam2.modeling.sam2_base import SAM2Base
 
 from sam2.utils.transforms import SAM2Transforms
 
+from modules.logger_util import get_logger
+
+logger = get_logger()
+
 
 class SAM2ImagePredictor:
     def __init__(
@@ -378,8 +382,8 @@ class SAM2ImagePredictor:
             # boxes are added at the beginning) to sam_prompt_encoder
             if concat_points is not None:
                 if concat_points[0].size(1) > 1 or concat_points[1].size(1) > 1:
-                    print("Warning: Box and point combination only works if there's "
-                          "only one dot and one box. Using only the first one...")
+                    logger.warning(" Box and point combination only works if there's "
+                                   "only one dot and one box. Using only the first one...")
                     concat_points = (concat_points[0][:, :1, :], concat_points[1][:, :1])
                     box_labels = box_labels[:1]
                     box_coords = box_coords[:1]
