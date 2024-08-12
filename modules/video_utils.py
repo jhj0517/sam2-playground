@@ -1,6 +1,6 @@
 import subprocess
 import os
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from modules.logger_util import get_logger
 from modules.paths import TEMP_DIR
@@ -36,7 +36,7 @@ def extract_frames(
 
 
 def get_frames_from_dir(vid_dir: str,
-                        available_extensions: Optional[List, str] = None) -> List:
+                        available_extensions: Optional[Union[List, str]] = None) -> List:
     if available_extensions is None:
         available_extensions = [".jpg", ".jpeg", ".JPG", ".JPEG"]
 
@@ -51,3 +51,16 @@ def get_frames_from_dir(vid_dir: str,
         return []
     frame_names.sort(key=lambda x: int(os.path.splitext(x)[0]))
     return frame_names
+
+
+def clean_image_files(image_dir: str):
+    image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
+
+    for filename in os.listdir(image_dir):
+        if filename.lower().endswith(image_extensions):
+            file_path = os.path.join(image_dir, filename)
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                logger.exception("Error while removing image files")
+                raise f"Error removing {str(e)}"
