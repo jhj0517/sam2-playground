@@ -47,5 +47,7 @@ def get_frames_from_dir(vid_dir: str,
         p for p in os.listdir(vid_dir)
         if os.path.splitext(p)[-1] in available_extensions
     ]
+    if not frame_names:
+        return []
     frame_names.sort(key=lambda x: int(os.path.splitext(x)[0]))
     return frame_names
