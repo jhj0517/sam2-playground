@@ -45,6 +45,7 @@ class SamInference:
         self.mask_generator = None
         self.image_predictor = None
         self.video_predictor = None
+        self.video_inference_state = None
 
     def load_model(self,
                    load_video_predictor: bool = False):
@@ -59,7 +60,8 @@ class SamInference:
 
         if load_video_predictor:
             try:
-                self.model = build_sam2_video_predictor(
+                self.model = None
+                self.video_predictor = build_sam2_video_predictor(
                     config_file=config,
                     ckpt_path=model_path,
                     device=self.device
@@ -77,6 +79,16 @@ class SamInference:
         except Exception as e:
             logger.exception("Error while loading SAM2 model")
             raise f"Error while loading SAM2 model!: {e}"
+
+    def init_video_inference_state(self,
+                                   vid_input: str):
+        if self.video_predictor is None:
+            self.load_model(load_video_predictor=True)
+
+        if self.video_inference_state is not None:
+            self.video_predictor.reset_state(self.video_inference_state)
+
+        self.video_predictor.init_state(video_path=vid_input)
 
     def generate_mask(self,
                       image: np.ndarray,
@@ -121,8 +133,37 @@ class SamInference:
             raise f"Error while predicting image with prompt: {str(e)}"
         return masks, scores, logits
 
+    def predict_frame(self,
+                      frame_idx: int,
+                      obj_id: int,
+                      inference_state: Dict,
+                      points: np.ndarray,
+                      labels: np.ndarray):
+        if self.video_inference_state is None:
+            logger.exception("Error while predicting frame from video, load video predictor first")
+            raise f"Error while predicting frame from video"
+
+        try:
+            out_masks, out_obj_ids, out_mask_logits = self.video_predictor.add_new_points_or_box(
+                inference_state=inference_state,
+                frame_idx=frame_idx,
+                obj_id=obj_id,
+                points=points,
+                labels=labels,
+            )
+        except Exception as e:
+            logger.exception("Error while predicting frame with prompt")
+            raise f"Error while predicting frame with prompt: {str(e)}"
+
+        return out_masks, out_obj_ids, out_mask_logits
+
     def predict_video(self,
                       video_input):
+        pass
+
+    def add_filter_to_preview(self,
+                              image: np.ndarray,
+                              ):
         pass
 
     def divide_layer(self,
