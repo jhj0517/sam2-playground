@@ -22,6 +22,7 @@ def extract_frames(
 
     command = [
         'ffmpeg',
+        '-y',  # Enable overwriting
         '-i', vid_input,
         '-q:v', str(quality),
         '-start_number', str(start_number),
@@ -31,12 +32,13 @@ def extract_frames(
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
-        logger.exception("Error occured while extracting frames from the video")
+        logger.exception("Error occurred while extracting frames from the video")
         raise f"An error occurred: {str(e)}"
 
 
 def get_frames_from_dir(vid_dir: str,
                         available_extensions: Optional[Union[List, str]] = None) -> List:
+    """Get image file paths list from the dir"""
     if available_extensions is None:
         available_extensions = [".jpg", ".jpeg", ".JPG", ".JPEG"]
 
@@ -50,7 +52,9 @@ def get_frames_from_dir(vid_dir: str,
     if not frame_names:
         return []
     frame_names.sort(key=lambda x: int(os.path.splitext(x)[0]))
-    return frame_names
+
+    frames = [os.path.join(vid_dir, name) for name in frame_names]
+    return frames
 
 
 def clean_image_files(image_dir: str):
