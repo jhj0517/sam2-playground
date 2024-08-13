@@ -1,6 +1,7 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2, build_sam2_video_predictor
 from sam2.sam2_image_predictor import SAM2ImagePredictor
+from sam2.sam2_video_predictor import SAM2VideoPredictor
 from typing import Dict, List, Optional
 import torch
 import os
@@ -13,11 +14,13 @@ from modules.model_downloader import (
     download_sam_model_url
 )
 from modules.paths import SAM2_CONFIGS_DIR, MODELS_DIR
-from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE
+from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER
 from modules.mask_utils import (
     save_psd_with_masks,
     create_mask_combined_images,
-    create_mask_gallery
+    create_mask_gallery,
+    create_mask_pixelized_image,
+    create_solid_color_mask_image
 )
 from modules.logger_util import get_logger
 
@@ -37,7 +40,7 @@ class SamInference:
                  ):
         self.model = None
         self.available_models = list(AVAILABLE_MODELS.keys())
-        self.model_type = DEFAULT_MODEL_TYPE
+        self.current_model_type = DEFAULT_MODEL_TYPE
         self.model_dir = model_dir
         self.output_dir = output_dir
         self.model_path = os.path.join(self.model_dir, AVAILABLE_MODELS[DEFAULT_MODEL_TYPE][0])
@@ -48,14 +51,18 @@ class SamInference:
         self.video_inference_state = None
 
     def load_model(self,
+                   model_type: Optional[str] = None,
                    load_video_predictor: bool = False):
-        config = MODEL_CONFIGS[self.model_type]
-        filename, url = AVAILABLE_MODELS[self.model_type]
+        if model_type is None:
+            model_type = DEFAULT_MODEL_TYPE
+
+        config = MODEL_CONFIGS[model_type]
+        filename, url = AVAILABLE_MODELS[model_type]
         model_path = os.path.join(self.model_dir, filename)
 
-        if not is_sam_exist(self.model_type):
-            logger.info(f"No SAM2 model found, downloading {self.model_type} model...")
-            download_sam_model_url(self.model_type)
+        if not is_sam_exist(model_type):
+            logger.info(f"No SAM2 model found, downloading {model_type} model...")
+            download_sam_model_url(model_type)
         logger.info(f"Applying configs to model..")
 
         if load_video_predictor:
@@ -81,22 +88,26 @@ class SamInference:
             raise f"Error while loading SAM2 model!: {e}"
 
     def init_video_inference_state(self,
+                                   model_type: str,
                                    vid_input: str):
-        if self.video_predictor is None:
-            self.load_model(load_video_predictor=True)
+
+        if self.video_predictor is None or model_type != self.current_model_type:
+            self.current_model_type = model_type
+            self.load_model(model_type=model_type, load_video_predictor=True)
 
         if self.video_inference_state is not None:
             self.video_predictor.reset_state(self.video_inference_state)
+            self.video_inference_state = None
 
-        self.video_predictor.init_state(video_path=vid_input)
+        self.video_inference_state = self.video_predictor.init_state(video_path=vid_input)
 
     def generate_mask(self,
                       image: np.ndarray,
                       model_type: str,
                       **params):
-        if self.model is None or self.model_type != model_type:
-            self.model_type = model_type
-            self.load_model()
+        if self.model is None or self.current_model_type != model_type:
+            self.current_model_type = model_type
+            self.load_model(model_type=model_type)
         self.mask_generator = SAM2AutomaticMaskGenerator(
             model=self.model,
             **params
@@ -115,9 +126,9 @@ class SamInference:
                       point_coords: Optional[np.ndarray] = None,
                       point_labels: Optional[np.ndarray] = None,
                       **params):
-        if self.model is None or self.model_type != model_type:
-            self.model_type = model_type
-            self.load_model()
+        if self.model is None or self.current_model_type != model_type:
+            self.current_model_type = model_type
+            self.load_model(model_type=model_type)
         self.image_predictor = SAM2ImagePredictor(sam_model=self.model)
         self.image_predictor.set_image(image)
 
@@ -137,34 +148,78 @@ class SamInference:
                       frame_idx: int,
                       obj_id: int,
                       inference_state: Dict,
-                      points: np.ndarray,
-                      labels: np.ndarray):
-        if self.video_inference_state is None:
+                      points: Optional[np.ndarray] = None,
+                      labels: Optional[np.ndarray] = None,
+                      box: Optional[np.ndarray] = None):
+        if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while predicting frame from video, load video predictor first")
             raise f"Error while predicting frame from video"
 
         try:
-            out_masks, out_obj_ids, out_mask_logits = self.video_predictor.add_new_points_or_box(
+            out_frame_idx, out_obj_ids, out_mask_logits = self.video_predictor.add_new_points_or_box(
                 inference_state=inference_state,
                 frame_idx=frame_idx,
                 obj_id=obj_id,
                 points=points,
                 labels=labels,
+                box=box
             )
         except Exception as e:
             logger.exception("Error while predicting frame with prompt")
-            raise f"Error while predicting frame with prompt: {str(e)}"
+            print(e)
+            raise f"Error while predicting frame with prompt"
 
-        return out_masks, out_obj_ids, out_mask_logits
+        return out_frame_idx, out_obj_ids, out_mask_logits
 
     def predict_video(self,
                       video_input):
         pass
 
     def add_filter_to_preview(self,
-                              image: np.ndarray,
+                              image_prompt_input_data: Dict,
+                              filter_mode: str,
+                              frame_idx: int,
+                              pixel_size: Optional[int] = None,
+                              color_hex: Optional[str] = None,
                               ):
-        pass
+        if self.video_predictor is None or self.video_inference_state is None:
+            logger.exception("Error while adding filter to preview, load video predictor first")
+            raise f"Error while adding filter to preview"
+
+        image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
+        image = np.array(image.convert("RGB"))
+
+        point_labels, point_coords, box = self.handle_prompt_data(prompt)
+
+        if filter_mode == COLOR_FILTER:
+            idx, scores, logits = self.predict_frame(
+                frame_idx=frame_idx,
+                obj_id=0,
+                inference_state=self.video_inference_state,
+                points=point_coords,
+                labels=point_labels,
+                box=box
+            )
+            masks = (logits[0] > 0.0).cpu().numpy()
+            generated_masks = self.format_to_auto_result(masks)
+            image = create_solid_color_mask_image(image, generated_masks, color_hex)
+
+        elif filter_mode == PIXELIZE_FILTER:
+            idx, scores, logits = self.predict_frame(
+                frame_idx=frame_idx,
+                obj_id=0,
+                inference_state=self.video_inference_state,
+                points=point_coords,
+                labels=point_labels,
+                box=box
+            )
+            print("before", logits)
+            masks = (logits[0] > 0.0).cpu().numpy()
+            generated_masks = self.format_to_auto_result(masks)
+            print("after", generated_masks)
+            image = create_mask_pixelized_image(image, generated_masks, pixel_size)
+        #
+        return image
 
     def divide_layer(self,
                      image_input: np.ndarray,
@@ -207,21 +262,14 @@ class SamInference:
             if len(prompt) == 0:
                 return [image], []
 
-            point_labels, point_coords, box = [], [], []
-
-            for x1, y1, left_click_indicator, x2, y2, point_indicator in prompt:
-                if point_indicator == 4.0:
-                    point_labels.append(left_click_indicator)
-                    point_coords.append([x1, y1])
-                else:
-                    box.append([x1, y1, x2, y2])
+            point_labels, point_coords, box = self.handle_prompt_data(prompt)
 
             predicted_masks, scores, logits = self.predict_image(
                 image=image,
                 model_type=model_type,
-                box=np.array(box) if box else None,
-                point_coords=np.array(point_coords) if point_coords else None,
-                point_labels=np.array(point_labels) if point_labels else None,
+                box=box,
+                point_coords=point_coords,
+                point_labels=point_labels,
                 multimask_output=hparams["multimask_output"]
             )
             generated_masks = self.format_to_auto_result(predicted_masks)
@@ -242,3 +290,34 @@ class SamInference:
             masks = np.expand_dims(masks, axis=0)
         result = [{"segmentation": mask[0], "area": place_holder} for mask in masks]
         return result
+
+    @staticmethod
+    def handle_prompt_data(
+        prompt_data: List
+    ):
+        """
+        Handle data from ImageInputPrompter.
+
+        Args:
+            prompt_data (Dict): A dictionary containing the 'prompt' key with a list of prompts.
+
+        Returns:
+            point_labels (List): list of points labels.
+            point_coords (List): list of points coords.
+            box (List): list of box datas.
+        """
+        point_labels, point_coords, box = [], [], []
+
+        for x1, y1, left_click_indicator, x2, y2, point_indicator in prompt_data:
+            is_point = point_indicator == 4.0
+            if is_point:
+                point_labels.append(left_click_indicator)
+                point_coords.append([x1, y1])
+            else:
+                box.append([x1, y1, x2, y2])
+
+        point_labels = np.array(point_labels) if point_labels else None
+        point_coords = np.array(point_coords) if point_coords else None
+        box = np.array(box) if box else None
+
+        return point_labels, point_coords, box
