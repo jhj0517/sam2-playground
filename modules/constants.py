@@ -2,3 +2,5 @@ AUTOMATIC_MODE = "Automatic Segmentation"
 BOX_PROMPT_MODE = "Box Prompt"
 PIXELIZE_FILTER = "Pixelize"
 COLOR_FILTER = "Solid Color"
+DEFAULT_COLOR = "#00FF00"
+DEFAULT_PIXEL_SIZE = 8
