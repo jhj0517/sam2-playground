@@ -15,7 +15,7 @@ def extract_frames(
     start_number: int = 0
 ):
     """
-    Extract frames and save them into output_temp_dir. This needs FFmpeg installed.
+    Extract frames as jpg files and save them into output_temp_dir. This needs FFmpeg installed.
     """
     os.makedirs(output_temp_dir, exist_ok=True)
     output_path = os.path.join(output_temp_dir, "%05d.jpg")
@@ -58,6 +58,7 @@ def get_frames_from_dir(vid_dir: str,
 
 
 def clean_image_files(image_dir: str):
+    """Removes all image files from the dir"""
     image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
 
     for filename in os.listdir(image_dir):
