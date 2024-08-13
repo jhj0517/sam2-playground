@@ -7,6 +7,7 @@ import torch
 import os
 from datetime import datetime
 import numpy as np
+import gradio as gr
 
 from modules.model_downloader import (
     AVAILABLE_MODELS, DEFAULT_MODEL_TYPE, OUTPUT_DIR,
@@ -63,7 +64,7 @@ class SamInference:
         if not is_sam_exist(model_type):
             logger.info(f"No SAM2 model found, downloading {model_type} model...")
             download_sam_model_url(model_type)
-        logger.info(f"Applying configs to model..")
+        logger.info(f"Applying configs to {model_type} model..")
 
         if load_video_predictor:
             try:
@@ -182,6 +183,13 @@ class SamInference:
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None,
                               ):
+        if not image_prompt_input_data["points"]:
+            error_message = ("Prompt data is empty! Please provide at least one point or box on the image. <br>"
+                             "If you've already added prompts, please press the eraser button "
+                             "and add your prompts again.")
+            logger.error(error_message)
+            raise gr.Error(error_message, duration=20)
+
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise f"Error while adding filter to preview"
@@ -213,12 +221,9 @@ class SamInference:
                 labels=point_labels,
                 box=box
             )
-            print("before", logits)
             masks = (logits[0] > 0.0).cpu().numpy()
             generated_masks = self.format_to_auto_result(masks)
-            print("after", generated_masks)
             image = create_mask_pixelized_image(image, generated_masks, pixel_size)
-        #
         return image
 
     def divide_layer(self,
