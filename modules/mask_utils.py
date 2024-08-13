@@ -6,6 +6,8 @@ from pytoshop import layers
 from pytoshop.enums import BlendMode
 from pytoshop.core import PsdFile
 
+from modules.constants import DEFAULT_COLOR, DEFAULT_PIXEL_SIZE
+
 
 def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarray[np.uint8]:
 
@@ -100,6 +102,57 @@ def create_mask_combined_images(
     enhanced = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
     return [enhanced, "Masked"]
+
+
+def create_mask_pixelized_image(
+    image: np.ndarray,
+    masks: List,
+    pixel_size: int = DEFAULT_PIXEL_SIZE
+):
+    final_result = image.copy()
+
+    def pixelize(img: np.ndarray, mask: np.ndarray[np.uint8], pixel_size: int):
+        h, w = img.shape[:2]
+        temp = cv2.resize(img, (w // pixel_size, h // pixel_size), interpolation=cv2.INTER_LINEAR)
+
+        pixelated = cv2.resize(temp, (w, h), interpolation=cv2.INTER_NEAREST)
+
+        return np.where(mask[:, :, np.newaxis] > 0, pixelated, img)
+
+    for info in masks:
+        rle = info['segmentation']
+        mask = decode_to_mask(rle)
+
+        pixelated_segment = pixelize(final_result, mask, pixel_size)
+
+        final_result = np.where(mask[:, :, np.newaxis] > 0, pixelated_segment, final_result)
+
+    return final_result
+
+
+def create_solid_color_mask_image(
+    image: np.ndarray,
+    masks: List,
+    color_hex: str = DEFAULT_COLOR
+):
+    final_result = image.copy()
+
+    def hex_to_bgr(hex_color: str):
+        hex_color = hex_color.lstrip('#')
+        rgb = tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+        return rgb[::-1]
+
+    color_bgr = hex_to_bgr(color_hex)
+
+    for info in masks:
+        rle = info['segmentation']
+        mask = decode_to_mask(rle)
+
+        solid_color_mask = np.full(image.shape, color_bgr, dtype=np.uint8)
+
+        final_result = np.where(mask[:, :, np.newaxis] > 0, solid_color_mask, final_result)
+
+    return final_result
 
 
 def insert_psd_layer(
