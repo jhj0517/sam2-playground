@@ -9,8 +9,9 @@ from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
 from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR)
 from modules.utils import open_folder
-from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE)
-from modules.video_utils import extract_frames, get_frames_from_dir
+from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
+                               DEFAULT_PIXEL_SIZE)
+from modules.video_utils import extract_frames, get_frames_from_dir, clean_image_files
 
 
 class App:
@@ -21,6 +22,10 @@ class App:
         self.sam_inf = SamInference()
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = BOX_PROMPT_MODE
+        self.filter_modes = [PIXELIZE_FILTER, COLOR_FILTER]
+        self.default_filter = PIXELIZE_FILTER
+        self.default_color = DEFAULT_COLOR
+        self.default_pixel_size = DEFAULT_PIXEL_SIZE
         default_param_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
         with open(default_param_config_path, 'r') as file:
             self.hparams = yaml.safe_load(file)
@@ -54,14 +59,25 @@ class App:
             gr.Accordion(visible=mode == AUTOMATIC_MODE),
         ]
 
-    def on_video_upload(self, vid_input: str):
+    @staticmethod
+    def on_filter_mode_change(mode: str):
+        return [
+            gr.ColorPicker(visible=mode == COLOR_FILTER),
+            gr.Number(visible=mode == PIXELIZE_FILTER)
+        ]
+
+    def on_video_model_change(self,
+                              model_type: str,
+                              vid_input: str):
         output_temp_dir = TEMP_DIR
+        clean_image_files(output_temp_dir)
         extract_frames(vid_input=vid_input, output_temp_dir=output_temp_dir)
         frames = get_frames_from_dir(vid_dir=output_temp_dir)
-        # self.sam_inf.init_video_inference_state(output_temp_dir)
+        initial_frame, max_frame_index = frames[0], (len(frames)-1)
+        self.sam_inf.init_video_inference_state(vid_input=output_temp_dir, model_type=model_type)
         return [
-            ImagePrompter(label="Prompt image with Box & Point", value=frames[0]),
-            gr.Slider(label="Frame Indexes", value=0, interactive=True, step=1, minimum=0, maximum=(len(frames)-1))
+            ImagePrompter(label="Prompt image with Box & Point", value=initial_frame),
+            gr.Slider(label="Frame Index", value=0, interactive=True, step=1, minimum=0, maximum=max_frame_index)
         ]
 
     @staticmethod
@@ -69,8 +85,7 @@ class App:
         temp_dir = TEMP_DIR
         frames = get_frames_from_dir(vid_dir=temp_dir)
         selected_frame = frames[frame_idx]
-        return ImagePrompter(elem_id="vid-prompter-index", label=f"Prompt image with Box & Point #{frame_idx}",
-                             value=selected_frame)
+        return ImagePrompter(label=f"Prompt image with Box & Point", value=selected_frame)
 
     @staticmethod
     def on_prompt_change(prompt: Dict):
@@ -121,17 +136,34 @@ class App:
                                           inputs=[dd_input_modes],
                                           outputs=[img_input, img_input_prompter, acc_mask_hparams])
 
-                with gr.TabItem("Mosaic Filter"):
-                    with gr.Row(equal_height=True):
-                        with gr.Column(scale=2):
-                            vid_input = gr.Video(label="Input Video here", scale=3)
-                        with gr.Column(scale=8):
-                            with gr.Row():
-                                vid_frame_prompter = ImagePrompter(elem_id="vid-prompter",
-                                                                   label="Prompt image with Box & Point  ",
-                                                                   interactive=True, scale=5)
-                                img_preview = gr.Image(label="Preview", interactive=False, scale=5)
-                            sld_frame_selector = gr.Slider(label="Frame Index", interactive=False)
+                with gr.TabItem("Pixelize Filter"):
+                    with gr.Column():
+                        file_vid_input = gr.File(label="Input Video here", file_types=['.mp4', '.avi', '.mov', '.wmv',
+                                                                                       '.flv', '.webm', '.mkv', '.mpeg',
+                                                                                       '.mpg', '.m4v', '.3gp', '.ts',
+                                                                                       '.vob'])
+                        with gr.Row(equal_height=True):
+                            with gr.Column(scale=9):
+                                with gr.Row():
+                                    vid_frame_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
+                                                                       interactive=True, scale=5)
+                                    img_preview = gr.Image(label="Preview", interactive=False, scale=5)
+
+                                sld_frame_selector = gr.Slider(label="Frame Index", interactive=False)
+
+                            with gr.Column(scale=1):
+                                dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
+                                                        choices=self.sam_inf.available_models)
+                                dd_filter_mode = gr.Dropdown(label="Filter Modes", interactive=True,
+                                                             value=self.default_filter,
+                                                             choices=self.filter_modes)
+                                cp_color_picker = gr.ColorPicker(label="Solid Color", interactive=True,
+                                                                 visible=self.default_filter == COLOR_FILTER,
+                                                                 value=self.default_color)
+                                nb_pixel_size = gr.Number(label="Pixel Size", interactive=True, minimum=1,
+                                                          visible=self.default_filter == PIXELIZE_FILTER,
+                                                          value=self.default_pixel_size)
+                                btn_generate_preview = gr.Button("GENERATE PREVIEW")
 
                     with gr.Row():
                         btn_generate = gr.Button("GENERATE", variant="primary")
@@ -141,15 +173,24 @@ class App:
                             output_file = gr.File(label="Generated psd file", scale=9)
                             btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
 
-                    vid_input.change(fn=self.on_video_upload,
-                                     inputs=[vid_input],
+                    file_vid_input.change(fn=self.on_video_model_change,
+                                          inputs=[dd_models, file_vid_input],
+                                          outputs=[vid_frame_prompter, sld_frame_selector])
+                    dd_models.change(fn=self.on_video_model_change,
+                                     inputs=[dd_models, file_vid_input],
                                      outputs=[vid_frame_prompter, sld_frame_selector])
                     sld_frame_selector.change(fn=self.on_frame_change,
                                               inputs=[sld_frame_selector],
                                               outputs=[vid_frame_prompter],)
-                    vid_frame_prompter.change(fn=self.on_prompt_change,
-                                              inputs=[vid_frame_prompter],
-                                              outputs=[img_preview])
+                    dd_filter_mode.change(fn=self.on_filter_mode_change,
+                                          inputs=[dd_filter_mode],
+                                          outputs=[cp_color_picker,
+                                                   nb_pixel_size])
+
+                    preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size, cp_color_picker]
+                    btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
+                                               inputs=preview_params,
+                                               outputs=[img_preview])
 
         self.demo.queue().launch(inbrowser=True)
 
