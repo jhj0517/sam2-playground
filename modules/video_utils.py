@@ -1,6 +1,8 @@
 import subprocess
 import os
 from typing import List, Optional, Union
+from PIL import Image
+import numpy as np
 
 from modules.logger_util import get_logger
 from modules.paths import TEMP_DIR
@@ -37,7 +39,8 @@ def extract_frames(
 
 
 def get_frames_from_dir(vid_dir: str,
-                        available_extensions: Optional[Union[List, str]] = None) -> List:
+                        available_extensions: Optional[Union[List, str]] = None,
+                        as_numpy: bool = False) -> List:
     """Get image file paths list from the dir"""
     if available_extensions is None:
         available_extensions = [".jpg", ".jpeg", ".JPG", ".JPEG"]
@@ -54,6 +57,9 @@ def get_frames_from_dir(vid_dir: str,
     frame_names.sort(key=lambda x: int(os.path.splitext(x)[0]))
 
     frames = [os.path.join(vid_dir, name) for name in frame_names]
+    if as_numpy:
+        frames = [np.array(Image.open(frame)) for frame in frames]
+
     return frames
 
 
