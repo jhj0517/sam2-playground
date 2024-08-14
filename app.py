@@ -191,6 +191,9 @@ class App:
                     btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
                                                inputs=preview_params,
                                                outputs=[img_preview])
+                    btn_generate.click(fn=self.sam_inf.add_filter_to_video,
+                                       inputs=preview_params,
+                                       outputs=None)
 
         self.demo.queue().launch(inbrowser=True)
 
