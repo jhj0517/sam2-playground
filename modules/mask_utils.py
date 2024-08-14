@@ -108,7 +108,7 @@ def create_mask_pixelized_image(
     image: np.ndarray,
     masks: List,
     pixel_size: int = DEFAULT_PIXEL_SIZE
-):
+) -> np.ndarray:
     final_result = image.copy()
 
     def pixelize(img: np.ndarray, mask: np.ndarray[np.uint8], pixel_size: int):
@@ -134,7 +134,7 @@ def create_solid_color_mask_image(
     image: np.ndarray,
     masks: List,
     color_hex: str = DEFAULT_COLOR
-):
+) -> np.ndarray:
     final_result = image.copy()
 
     def hex_to_bgr(hex_color: str):
