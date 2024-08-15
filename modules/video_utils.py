@@ -18,6 +18,7 @@ class VideoInfo:
     frame_rate: Optional[int] = None
     duration: Optional[float] = None
     has_sound: Optional[bool] = None
+    codec: Optional[str] = None
 
 
 def extract_frames(
@@ -35,6 +36,8 @@ def extract_frames(
         'ffmpeg',
         '-y',  # Enable overwriting
         '-i', vid_input,
+        '-qscale:v', '2',
+        '-vf', f'scale=iw:ih',
         '-start_number', str(start_number),
         f'{output_path}'
     ]
@@ -96,12 +99,17 @@ def get_video_info(vid_input: str) -> VideoInfo:
         frame_rate = None
         duration = None
         has_sound = False
+        codec = None
 
         for line in output.splitlines():
             if 'Stream #0:0' in line and 'Video:' in line:
                 fps_match = re.search(r'(\d+(?:\.\d+)?) fps', line)
                 if fps_match:
                     frame_rate = float(fps_match.group(1))
+
+                codec_match = re.search(r'Video: (\w+)', line)
+                if codec_match:
+                    codec = codec_match.group(1)
 
             elif 'Duration:' in line:
                 duration_match = re.search(r'Duration: (\d{2}):(\d{2}):(\d{2}\.\d{2})', line)
@@ -119,7 +127,8 @@ def get_video_info(vid_input: str) -> VideoInfo:
             num_frames=num_frames,
             frame_rate=frame_rate,
             duration=duration,
-            has_sound=has_sound
+            has_sound=has_sound,
+            codec=codec
         )
 
     except subprocess.CalledProcessError as e:
@@ -151,12 +160,12 @@ def create_video_from_frames(
             sound_path = temp_sound
 
     if frame_rate is None:
-        frame_rate = 25  # Default frame rate
+        frame_rate = 25  # Default frame rate for ffmpeg
 
     command = [
         'ffmpeg',
         '-y',
-        '-framerate', frame_rate,
+        '-framerate', str(frame_rate),
         '-i', os.path.join(frames_dir, "%05d.jpg"),
         '-c:v', 'libx264',
         '-pix_fmt', 'yuv420p',
@@ -171,12 +180,10 @@ def create_video_from_frames(
             '-b:a', '192k',
             '-shortest'
         ]
-    print(command)
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         logger.exception("Error occurred while creating video from frames")
-    print("Done, output path:", output_path)
     return output_path
 
 
