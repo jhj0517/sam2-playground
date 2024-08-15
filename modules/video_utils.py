@@ -3,11 +3,21 @@ import os
 from typing import List, Optional, Union
 from PIL import Image
 import numpy as np
+from dataclasses import dataclass
+import re
 
 from modules.logger_util import get_logger
-from modules.paths import TEMP_DIR
+from modules.paths import TEMP_DIR, TEMP_OUT_DIR
 
 logger = get_logger()
+
+
+@dataclass
+class VideoInfo:
+    num_frames: Optional[int] = None
+    frame_rate: Optional[int] = None
+    duration: Optional[float] = None
+    has_sound: Optional[bool] = None
 
 
 def extract_frames(
@@ -60,8 +70,113 @@ def extract_sound(
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         logger.exception("Error occurred while extracting sound from the video")
-        raise RuntimeError(f"An error occurred: {str(e)}")
 
+    return output_path
+
+
+def get_video_info(vid_input: str) -> VideoInfo:
+    """
+    Extract video information using ffmpeg.
+    """
+    command = [
+        'ffmpeg',
+        '-i', vid_input,
+        '-map', '0:v:0',
+        '-c', 'copy',
+        '-f', 'null',
+        '-'
+    ]
+
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                encoding='utf-8', errors='replace', check=True)
+        output = result.stderr
+
+        num_frames = None
+        frame_rate = None
+        duration = None
+        has_sound = False
+
+        for line in output.splitlines():
+            if 'Stream #0:0' in line and 'Video:' in line:
+                fps_match = re.search(r'(\d+(?:\.\d+)?) fps', line)
+                if fps_match:
+                    frame_rate = float(fps_match.group(1))
+
+            elif 'Duration:' in line:
+                duration_match = re.search(r'Duration: (\d{2}):(\d{2}):(\d{2}\.\d{2})', line)
+                if duration_match:
+                    h, m, s = map(float, duration_match.groups())
+                    duration = h * 3600 + m * 60 + s
+
+            elif 'Stream' in line and 'Audio:' in line:
+                has_sound = True
+
+        if frame_rate and duration:
+            num_frames = int(frame_rate * duration)
+
+        return VideoInfo(
+            num_frames=num_frames,
+            frame_rate=frame_rate,
+            duration=duration,
+            has_sound=has_sound
+        )
+
+    except subprocess.CalledProcessError as e:
+        logger.exception("Error occurred while getting info from the video")
+        return VideoInfo()
+
+
+def create_video_from_frames(
+    frames_dir: str,
+    frame_rate: Optional[int] = None,
+    sound_path: Optional[str] = None,
+    output_dir: Optional[str] = None,
+):
+    """
+    Create a video from frames and save it to the output_path. This needs FFmpeg installed.
+    """
+    if not os.path.exists(frames_dir):
+        raise "frames_dir does not exist"
+
+    if output_dir is None:
+        output_dir = TEMP_OUT_DIR
+    num_files = len(os.listdir(output_dir))
+    filename = f"{num_files:05d}.mp4"
+    output_path = os.path.join(output_dir, filename)
+
+    if sound_path is None:
+        temp_sound = os.path.join(TEMP_DIR, "sound.mp3")
+        if os.path.exists(temp_sound):
+            sound_path = temp_sound
+
+    if frame_rate is None:
+        frame_rate = 25  # Default frame rate
+
+    command = [
+        'ffmpeg',
+        '-y',
+        '-framerate', frame_rate,
+        '-i', os.path.join(frames_dir, "%05d.jpg"),
+        '-c:v', 'libx264',
+        '-pix_fmt', 'yuv420p',
+        output_path
+    ]
+
+    if sound_path is not None:
+        command += [
+            '-i', sound_path,
+            '-c:a', 'aac',
+            '-strict', 'experimental',
+            '-b:a', '192k',
+            '-shortest'
+        ]
+    print(command)
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as e:
+        logger.exception("Error occurred while creating video from frames")
+    print("Done, output path:", output_path)
     return output_path
 
 
@@ -98,25 +213,20 @@ def clean_temp_dir(temp_dir: str = TEMP_DIR):
 
 def clean_sound_files(sound_dir: str):
     """Removes all sound files from the directory."""
-    sound_extensions = ('.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.wma')
-
-    for filename in os.listdir(sound_dir):
-        if filename.lower().endswith(sound_extensions):
-            file_path = os.path.join(sound_dir, filename)
-            try:
-                os.remove(file_path)
-            except Exception as e:
-                logger.exception("Error while removing sound files")
-                raise RuntimeError(f"Error removing {file_path}: {str(e)}")
+    sound_extensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.wma']
+    _clean_files_with_extension(sound_dir, sound_extensions)
 
 
 def clean_image_files(image_dir: str):
     """Removes all image files from the dir"""
-    image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp')
+    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp']
+    _clean_files_with_extension(image_dir, image_extensions)
 
-    for filename in os.listdir(image_dir):
-        if filename.lower().endswith(image_extensions):
-            file_path = os.path.join(image_dir, filename)
+
+def _clean_files_with_extension(dir_path: str, extensions: List):
+    for filename in os.listdir(dir_path):
+        if filename.lower().endswith(tuple(extensions)):
+            file_path = os.path.join(dir_path, filename)
             try:
                 os.remove(file_path)
             except Exception as e:
