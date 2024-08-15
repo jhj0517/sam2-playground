@@ -23,7 +23,8 @@ from modules.mask_utils import (
     create_mask_pixelized_image,
     create_solid_color_mask_image
 )
-from modules.video_utils import get_frames_from_dir
+from modules.video_utils import (get_frames_from_dir, create_video_from_frames, get_video_info, extract_frames,
+                                 extract_sound, clean_temp_dir)
 from modules.utils import save_image
 from modules.logger_util import get_logger
 
@@ -53,6 +54,7 @@ class SamInference:
         self.image_predictor = None
         self.video_predictor = None
         self.video_inference_state = None
+        self.video_info = None
 
     def load_model(self,
                    model_type: Optional[str] = None,
@@ -79,7 +81,6 @@ class SamInference:
                 )
             except Exception as e:
                 logger.exception("Error while loading SAM2 model for video predictor")
-                raise f"Error while loading SAM2 model for video predictor!: {e}"
 
         try:
             self.model = build_sam2(
@@ -89,7 +90,6 @@ class SamInference:
             )
         except Exception as e:
             logger.exception("Error while loading SAM2 model")
-            raise f"Error while loading SAM2 model!: {e}"
 
     def init_video_inference_state(self,
                                    vid_input: str,
@@ -101,11 +101,18 @@ class SamInference:
             self.current_model_type = model_type
             self.load_model(model_type=model_type, load_video_predictor=True)
 
+        self.video_info = get_video_info(vid_input)
+        frames_temp_dir = TEMP_DIR
+        clean_temp_dir(frames_temp_dir)
+        extract_frames(vid_input, frames_temp_dir)
+        if self.video_info.has_sound:
+            extract_sound(vid_input, frames_temp_dir)
+
         if self.video_inference_state is not None:
             self.video_predictor.reset_state(self.video_inference_state)
             self.video_inference_state = None
 
-        self.video_inference_state = self.video_predictor.init_state(video_path=vid_input)
+        self.video_inference_state = self.video_predictor.init_state(video_path=frames_temp_dir)
 
     def generate_mask(self,
                       image: np.ndarray,
@@ -147,7 +154,6 @@ class SamInference:
             )
         except Exception as e:
             logger.exception(f"Error while predicting image with prompt: {str(e)}")
-            raise RuntimeError(f"Error while predicting image with prompt: {str(e)}") from e
         return masks, scores, logits
 
     def add_prediction_to_frame(self,
@@ -160,7 +166,6 @@ class SamInference:
         if (self.video_predictor is None or
                 inference_state is None and self.video_inference_state is None):
             logger.exception("Error while predicting frame from video, load video predictor first")
-            raise f"Error while predicting frame from video"
 
         if inference_state is None:
             inference_state = self.video_inference_state
@@ -184,7 +189,6 @@ class SamInference:
                            inference_state: Optional[Dict] = None,):
         if inference_state is None and self.video_inference_state is None:
             logger.exception("Error while propagating in video, load video predictor first")
-            raise f"Error while propagating in video"
 
         if inference_state is None:
             inference_state = self.video_inference_state
@@ -196,7 +200,6 @@ class SamInference:
                 inference_state=inference_state,
                 start_frame_idx=0
             )
-            cached_images = inference_state["images"]
             images = get_frames_from_dir(vid_dir=TEMP_DIR, as_numpy=True)
 
             with torch.autocast(device_type=self.device, dtype=torch.float16):
@@ -208,7 +211,6 @@ class SamInference:
                     }
         except Exception as e:
             logger.exception(f"Error while propagating in video: {str(e)}")
-            raise RuntimeError(f"Failed to propagate in video: {str(e)}") from e
 
         return video_segments
 
@@ -255,12 +257,13 @@ class SamInference:
 
         return image
 
-    def add_filter_to_video(self,
-                            image_prompt_input_data: Dict,
-                            filter_mode: str,
-                            frame_idx: int,
-                            pixel_size: Optional[int] = None,
-                            color_hex: Optional[str] = None,):
+    def create_filtered_video(self,
+                              image_prompt_input_data: Dict,
+                              filter_mode: str,
+                              frame_idx: int,
+                              pixel_size: Optional[int] = None,
+                              color_hex: Optional[str] = None
+                              ):
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise f"Error while adding filter to preview"
@@ -298,6 +301,14 @@ class SamInference:
                 filtered_image = create_mask_pixelized_image(orig_image, masks, pixel_size)
 
             save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
+
+        out_video = create_video_from_frames(
+            frames_dir=TEMP_DIR,
+            frame_rate=self.video_info.frame_rate,
+            output_dir=self.output_dir,
+        )
+
+        return out_video, out_video
 
     def divide_layer(self,
                      image_input: np.ndarray,
