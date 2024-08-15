@@ -7,7 +7,7 @@ import yaml
 
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
-from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR)
+from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR, OUTPUT_FILTER_DIR)
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
                                DEFAULT_PIXEL_SIZE)
@@ -127,7 +127,7 @@ class App:
 
                     btn_generate.click(fn=self.sam_inf.divide_layer,
                                        inputs=input_params, outputs=[gallery_output, output_file])
-                    btn_open_folder.click(fn=lambda: open_folder(os.path.join(OUTPUT_PSD_DIR)),
+                    btn_open_folder.click(fn=lambda: open_folder(OUTPUT_PSD_DIR),
                                           inputs=None, outputs=None)
                     dd_input_modes.change(fn=self.on_mode_change,
                                           inputs=[dd_input_modes],
@@ -192,6 +192,7 @@ class App:
                     btn_generate.click(fn=self.sam_inf.create_filtered_video,
                                        inputs=preview_params,
                                        outputs=[vid_output, output_file])
+                    btn_open_folder.click(fn=lambda: open_folder(OUTPUT_FILTER_DIR), inputs=None, outputs=None)
 
         self.demo.queue().launch(inbrowser=True)
 
