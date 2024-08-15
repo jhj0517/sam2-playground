@@ -11,7 +11,7 @@ from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DI
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
                                DEFAULT_PIXEL_SIZE)
-from modules.video_utils import extract_frames, get_frames_from_dir, clean_image_files
+from modules.video_utils import extract_frames, extract_sound, get_frames_from_dir, clean_temp_dir
 
 
 class App:
@@ -69,12 +69,9 @@ class App:
     def on_video_model_change(self,
                               model_type: str,
                               vid_input: str):
-        output_temp_dir = TEMP_DIR
-        clean_image_files(output_temp_dir)
-        extract_frames(vid_input=vid_input, output_temp_dir=output_temp_dir)
-        frames = get_frames_from_dir(vid_dir=output_temp_dir)
+        self.sam_inf.init_video_inference_state(vid_input=vid_input, model_type=model_type)
+        frames = get_frames_from_dir(vid_dir=TEMP_DIR)
         initial_frame, max_frame_index = frames[0], (len(frames)-1)
-        self.sam_inf.init_video_inference_state(vid_input=output_temp_dir, model_type=model_type)
         return [
             ImagePrompter(label="Prompt image with Box & Point", value=initial_frame),
             gr.Slider(label="Frame Index", value=0, interactive=True, step=1, minimum=0, maximum=max_frame_index)
@@ -168,10 +165,10 @@ class App:
                     with gr.Row():
                         btn_generate = gr.Button("GENERATE", variant="primary")
                     with gr.Row():
-                        gallery_output = gr.Gallery(label="Output images will be shown here")
+                        vid_output = gr.Video(label="Output video")
                         with gr.Column():
-                            output_file = gr.File(label="Generated psd file", scale=9)
-                            btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
+                            output_file = gr.File(label="Downloadable Video Output File", scale=9)
+                            btn_open_folder = gr.Button("📁\nOpen Output folder", scale=1)
 
                     file_vid_input.change(fn=self.on_video_model_change,
                                           inputs=[dd_models, file_vid_input],
@@ -187,13 +184,14 @@ class App:
                                           outputs=[cp_color_picker,
                                                    nb_pixel_size])
 
-                    preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size, cp_color_picker]
+                    preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size,
+                                      cp_color_picker]
                     btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
                                                inputs=preview_params,
                                                outputs=[img_preview])
-                    btn_generate.click(fn=self.sam_inf.add_filter_to_video,
+                    btn_generate.click(fn=self.sam_inf.create_filtered_video,
                                        inputs=preview_params,
-                                       outputs=None)
+                                       outputs=[vid_output, output_file])
 
         self.demo.queue().launch(inbrowser=True)
 

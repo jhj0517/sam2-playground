@@ -238,4 +238,3 @@ def _clean_files_with_extension(dir_path: str, extensions: List):
                 os.remove(file_path)
             except Exception as e:
                 logger.exception("Error while removing image files")
-                raise RuntimeError(f"An error occurred: {str(e)}")
