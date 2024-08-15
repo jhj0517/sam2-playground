@@ -212,10 +212,17 @@ def get_frames_from_dir(vid_dir: str,
     return frames
 
 
-def clean_temp_dir(temp_dir: str = TEMP_DIR):
+def clean_temp_dir(temp_dir: Optional[str] = None):
     """Removes media files from the directory."""
+    if temp_dir is None:
+        temp_dir = TEMP_DIR
+        temp_out_dir = TEMP_OUT_DIR
+    else:
+        temp_out_dir = os.path.join(temp_dir, "out")
+
     clean_sound_files(temp_dir)
     clean_image_files(temp_dir)
+    clean_image_files(temp_out_dir)
 
 
 def clean_sound_files(sound_dir: str):
