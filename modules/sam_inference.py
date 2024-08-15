@@ -206,7 +206,6 @@ class SamInference:
                         "image": images[out_frame_idx],
                         "mask": mask
                     }
-                    print("frame_idx: ", out_frame_idx)
         except Exception as e:
             logger.exception(f"Error while propagating in video: {str(e)}")
             raise RuntimeError(f"Failed to propagate in video: {str(e)}") from e
@@ -298,7 +297,7 @@ class SamInference:
             elif filter_mode == PIXELIZE_FILTER:
                 filtered_image = create_mask_pixelized_image(orig_image, masks, pixel_size)
 
-            save_image(filtered_image, os.path.join(TEMP_OUT_DIR, "%05d.jpg"))
+            save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
 
     def divide_layer(self,
                      image_input: np.ndarray,
