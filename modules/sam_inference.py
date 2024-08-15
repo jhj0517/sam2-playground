@@ -24,7 +24,7 @@ from modules.mask_utils import (
     create_solid_color_mask_image
 )
 from modules.video_utils import (get_frames_from_dir, create_video_from_frames, get_video_info, extract_frames,
-                                 extract_sound, clean_temp_dir)
+                                 extract_sound, clean_temp_dir, clean_image_files)
 from modules.utils import save_image
 from modules.logger_util import get_logger
 
@@ -277,6 +277,8 @@ class SamInference:
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
 
+        clean_image_files(TEMP_OUT_DIR)
+
         prompt_frame_image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
 
         point_labels, point_coords, box = self.handle_prompt_data(prompt)
@@ -306,7 +308,7 @@ class SamInference:
             save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
 
         out_video = create_video_from_frames(
-            frames_dir=TEMP_DIR,
+            frames_dir=TEMP_OUT_DIR,
             frame_rate=self.video_info.frame_rate,
             output_dir=self.output_dir,
         )
