@@ -44,3 +44,5 @@ def save_image(image: Union[np.ndarray, str],
     num_images = len(get_image_files(output_dir))
     output_path = os.path.join(output_dir, f"{num_images:05d}.jpg")
     image.save(output_path)
+
+    return output_path
