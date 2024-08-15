@@ -29,7 +29,7 @@ def save_image(image: Union[np.ndarray, str],
                output_dir: Optional[str] = None):
 
     if output_dir is None and output_path is None:
-        raise "Either output_path or output_dir should be provided"
+        raise ValueError("Either output_path or output_dir should be provided")
 
     if isinstance(image, str):
         image = Image.open(image)
@@ -38,7 +38,7 @@ def save_image(image: Union[np.ndarray, str],
 
     if output_path is not None:
         image.save(output_path, "JPEG")
-        return
+        return output_path
 
     os.makedirs(output_dir, exist_ok=True)
     num_images = len(get_image_files(output_dir))
