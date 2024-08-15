@@ -90,6 +90,7 @@ class SamInference:
             )
         except Exception as e:
             logger.exception("Error while loading SAM2 model")
+            raise RuntimeError(f"Failed to load model") from e
 
     def init_video_inference_state(self,
                                    vid_input: str,
@@ -128,8 +129,8 @@ class SamInference:
         try:
             generated_masks = self.mask_generator.generate(image)
         except Exception as e:
-            logger.exception("Error while auto generating masks")
-            raise f"Error while auto generating masks: str({e})"
+            logger.exception(f"Error while auto generating masks : {e}")
+            raise RuntimeError(f"Failed to generate masks") from e
         return generated_masks
 
     def predict_image(self,
@@ -154,6 +155,7 @@ class SamInference:
             )
         except Exception as e:
             logger.exception(f"Error while predicting image with prompt: {str(e)}")
+            raise RuntimeError(f"Failed to predict image with prompt") from e
         return masks, scores, logits
 
     def add_prediction_to_frame(self,
@@ -181,7 +183,7 @@ class SamInference:
             )
         except Exception as e:
             logger.exception(f"Error while predicting frame with prompt: {str(e)}")
-            raise RuntimeError(f"Failed to predicting frame with prompt: {str(e)}") from e
+            raise RuntimeError(f"Failed to predicting frame with prompt") from e
 
         return out_frame_idx, out_obj_ids, out_mask_logits
 
@@ -211,6 +213,7 @@ class SamInference:
                     }
         except Exception as e:
             logger.exception(f"Error while propagating in video: {str(e)}")
+            raise RuntimeError(f"Failed to propagate in video") from e
 
         return video_segments
 
@@ -266,7 +269,7 @@ class SamInference:
                               ):
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
-            raise f"Error while adding filter to preview"
+            raise RuntimeError("Error while adding filter to preview")
 
         if not image_prompt_input_data["points"]:
             error_message = ("No prompt data provided. If this is an incorrect flag, "
