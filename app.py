@@ -1,25 +1,28 @@
+import argparse
 import gradio as gr
 from gradio_image_prompter import ImagePrompter
-from gradio_image_prompter.image_prompter import PromptData
 from typing import List, Dict, Optional, Union
 import os
 import yaml
 
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
-from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR, OUTPUT_FILTER_DIR)
+from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR, OUTPUT_FILTER_DIR, MODELS_DIR)
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
                                DEFAULT_PIXEL_SIZE, SOUND_FILE_EXT, IMAGE_FILE_EXT, VIDEO_FILE_EXT)
-from modules.video_utils import extract_frames, extract_sound, get_frames_from_dir, clean_temp_dir
+from modules.video_utils import get_frames_from_dir
 
 
 class App:
     def __init__(self,
-                 args=None):
+                 args: argparse.Namespace):
         self.demo = gr.Blocks()
         self.args = args
-        self.sam_inf = SamInference()
+        self.sam_inf = SamInference(
+            model_dir=self.args.model_dir,
+            output_dir=self.args.output_dir
+        )
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = BOX_PROMPT_MODE
         self.filter_modes = [PIXELIZE_FILTER, COLOR_FILTER]
@@ -191,9 +194,23 @@ class App:
                                        outputs=[vid_output, output_file])
                     btn_open_folder.click(fn=lambda: open_folder(OUTPUT_FILTER_DIR), inputs=None, outputs=None)
 
-        self.demo.queue().launch(inbrowser=True)
+        self.demo.queue().launch(
+            inbrowser=self.args.inbrowser,
+            share=self.args.share
+        )
 
 
 if __name__ == "__main__":
-    demo = App()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_dir', type=str, default=MODELS_DIR,
+                        help='Model directory for segment-anything-2')
+    parser.add_argument('--output_dir', type=str, default=OUTPUT_DIR,
+                        help='Output directory for the results')
+    parser.add_argument('--inbrowser', type=bool, default=True, nargs='?', const=True,
+                        help='Whether to automatically start Gradio app or not')
+    parser.add_argument('--share', type=bool, default=True, nargs='?', const=False,
+                        help='Whether to create a public link for the app or not')
+    args = parser.parse_args()
+
+    demo = App(args=args)
     demo.launch()
