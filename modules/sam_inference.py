@@ -1,7 +1,7 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2, build_sam2_video_predictor
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple, Any
 import torch
 import os
 from datetime import datetime
@@ -52,6 +52,13 @@ class SamInference:
     def load_model(self,
                    model_type: Optional[str] = None,
                    load_video_predictor: bool = False):
+        """
+        Load the model from the model directory. If the model is not found, download it from the URL.
+
+        Args:
+            model_type (str): The model type to load.
+            load_video_predictor (bool): Load the video predictor model.
+        """
         if model_type is None:
             model_type = DEFAULT_MODEL_TYPE
 
@@ -90,6 +97,13 @@ class SamInference:
     def init_video_inference_state(self,
                                    vid_input: str,
                                    model_type: Optional[str] = None):
+        """
+        Initialize the video inference state for the video predictor.
+
+        Args:
+            vid_input (str): The video frames directory.
+            model_type (str): The model type to load.
+        """
         if model_type is None:
             model_type = self.current_model_type
 
@@ -113,7 +127,19 @@ class SamInference:
     def generate_mask(self,
                       image: np.ndarray,
                       model_type: str,
-                      **params):
+                      **params) -> List[Dict[str, Any]]:
+        """
+        Generate masks with Automatic segmentation. Default hyperparameters are in './configs/default_hparams.yaml.'
+
+        Args:
+            image (np.ndarray): The input image.
+            model_type (str): The model type to load.
+            **params: The hyperparameters for the mask generator.
+
+        Returns:
+            List[Dict[str, Any]]: The auto-generated mask data.
+        """
+
         if self.model is None or self.current_model_type != model_type:
             self.current_model_type = model_type
             self.load_model(model_type=model_type)
@@ -134,7 +160,23 @@ class SamInference:
                       box: Optional[np.ndarray] = None,
                       point_coords: Optional[np.ndarray] = None,
                       point_labels: Optional[np.ndarray] = None,
-                      **params):
+                      **params) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Predict image with prompt data.
+
+        Args:
+            image (np.ndarray): The input image.
+            model_type (str): The model type to load.
+            box (np.ndarray): The box prompt data.
+            point_coords (np.ndarray): The point coordinates prompt data.
+            point_labels (np.ndarray): The point labels prompt data.
+            **params: The hyperparameters for the mask generator.
+
+        Returns:
+            np.ndarray: The predicted masks output in CxHxW format.
+            np.ndarray: Array of scores for each mask.
+            np.ndarray: Array of logits in CxHxW format.
+        """
         if self.model is None or self.current_model_type != model_type:
             self.current_model_type = model_type
             self.load_model(model_type=model_type)
@@ -159,7 +201,24 @@ class SamInference:
                                 inference_state: Optional[Dict] = None,
                                 points: Optional[np.ndarray] = None,
                                 labels: Optional[np.ndarray] = None,
-                                box: Optional[np.ndarray] = None):
+                                box: Optional[np.ndarray] = None) -> Tuple[int, int, torch.Tensor]:
+        """
+        Add prediction to the current video inference state. inference state must be initialized before calling this method.
+
+        Args:
+            frame_idx (int): The frame index of the video.
+            obj_id (int): The object id for the frame.
+            inference_state (Dict): The inference state for the video predictor.
+            points (np.ndarray): The point coordinates prompt data.
+            labels (np.ndarray): The point labels prompt data.
+            box (np.ndarray): The box prompt data.
+
+        Returns:
+            int: The frame index of the corresponding prediction.
+            int: The object id of the corresponding prediction.
+            torch.Tensor: The mask logits output in CxHxW format.
+        """
+
         if (self.video_predictor is None or
                 inference_state is None and self.video_inference_state is None):
             logger.exception("Error while predicting frame from video, load video predictor first")
@@ -184,6 +243,18 @@ class SamInference:
 
     def propagate_in_video(self,
                            inference_state: Optional[Dict] = None,):
+        """
+        Propagate in the video with the tracked predictions for each frame. Currently only supports
+        single frame tracking.
+
+        Args:
+            inference_state (Dict): The inference state for the video predictor. Use self.video_inference_state if None.
+
+        Returns:
+            Dict: The video segments with the image and mask data. It has frame index as each key and each key has
+                "image" and "mask" data. "image" key contains the path of the original image file and "mask" key contains
+                the np.ndarray mask output.
+        """
         if inference_state is None and self.video_inference_state is None:
             logger.exception("Error while propagating in video, load video predictor first")
 
@@ -219,6 +290,20 @@ class SamInference:
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None,
                               ):
+        """
+        Add filter to the preview image with the prompt data. Specially made for gradio app.
+        It adds prediction tracking to the self.video_inference_state and returns the filtered image.
+
+        Args:
+            image_prompt_input_data (Dict): The image prompt data.
+            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize"]
+            frame_idx (int): The frame index of the video.
+            pixel_size (int): The pixel size for the pixelize filter.
+            color_hex (str): The color hex code for the solid color filter.
+
+        Returns:
+            np.ndarray: The filtered image output.
+        """
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise f"Error while adding filter to preview"
@@ -262,6 +347,22 @@ class SamInference:
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None
                               ):
+        """
+        Create a whole filtered video with video_inference_state. Currently only one frame tracking is supported.
+        This needs FFmpeg to run. Returns two output path because of the gradio app.
+
+        Args:
+            image_prompt_input_data (Dict): The image prompt data.
+            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize"]
+            frame_idx (int): The frame index of the video.
+            pixel_size (int): The pixel size for the pixelize filter.
+            color_hex (str): The color hex code for the solid color filter.
+
+        Returns:
+            str: The output video path.
+            str: The output video path.
+        """
+
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise RuntimeError("Error while adding filter to preview")
@@ -321,6 +422,21 @@ class SamInference:
                      input_mode: str,
                      model_type: str,
                      *params):
+        """
+        Divide the layer with the given prompt data and save psd file.
+
+        Args:
+            image_input (np.ndarray): The input image.
+            image_prompt_input_data (Dict): The image prompt data.
+            input_mode (str): The input mode for the image prompt data. ["Automatic", "Box Prompt"]
+            model_type (str): The model type to load.
+            *params: The hyperparameters for the mask generator.
+
+        Returns:
+            List[np.ndarray]: List of images by predicted masks.
+            str: The output path of the psd file.
+        """
+
         timestamp = datetime.now().strftime("%m%d%H%M%S")
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
@@ -378,6 +494,7 @@ class SamInference:
     def format_to_auto_result(
         masks: np.ndarray
     ):
+        """Format the masks to auto result format for convenience."""
         place_holder = 0
         if len(masks.shape) <= 3:
             masks = np.expand_dims(masks, axis=0)
