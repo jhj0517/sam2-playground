@@ -26,8 +26,8 @@ class App:
         self.default_filter = PIXELIZE_FILTER
         self.default_color = DEFAULT_COLOR
         self.default_pixel_size = DEFAULT_PIXEL_SIZE
-        default_param_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
-        with open(default_param_config_path, 'r') as file:
+        default_hparam_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
+        with open(default_hparam_config_path, 'r') as file:
             self.default_hparams = yaml.safe_load(file)
 
     def mask_parameters(self,
@@ -90,7 +90,7 @@ class App:
         return gr.Image(label="Preview", value=image)
 
     def launch(self):
-        _mask_hparams = self.hparams["mask_hparams"]
+        _mask_hparams = self.default_hparams["mask_hparams"]
 
         with self.demo:
             with gr.Tabs():
