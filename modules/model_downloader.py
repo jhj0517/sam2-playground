@@ -26,8 +26,8 @@ def load_file_from_url(
     filename: Optional[str] = None,
 ) -> str:
     from urllib.parse import urlparse
-    """Download a file from `url` into `model_dir`, using the file present if possible.
-
+    """
+    Download a file from `url` into `model_dir`, using the file present if possible.
     Returns the path to the downloaded file.
     """
     os.makedirs(model_dir, exist_ok=True)
