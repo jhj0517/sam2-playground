@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import colorsys
 from pytoshop import layers
 from pytoshop.enums import BlendMode
@@ -10,14 +10,15 @@ from modules.constants import DEFAULT_COLOR, DEFAULT_PIXEL_SIZE
 
 
 def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarray[np.uint8]:
-
+    """Decode to uint8 mask from bool to deal with as images"""
     if isinstance(seg, np.ndarray) and seg.dtype == np.bool_:
         return seg.astype(np.uint8) * 255
     else:
         return seg.astype(np.uint8)
 
 
-def generate_random_color():
+def generate_random_color() -> Tuple[int, int, int]:
+    """Generate random color in RGB format"""
     h = np.random.randint(0, 360)
     s = np.random.randint(70, 100) / 100
     v = np.random.randint(70, 100) / 100
@@ -25,15 +26,26 @@ def generate_random_color():
     return int(r * 255), int(g * 255), int(b * 255)
 
 
-def create_base_layer(image: np.ndarray):
+def create_base_layer(image: np.ndarray) -> List[np.ndarray]:
+    """Create a base layer from the image. Used to keep original image"""
     rgba_image = cv2.cvtColor(image, cv2.COLOR_RGB2RGBA)
     return [rgba_image]
 
 
 def create_mask_layers(
     image: np.ndarray,
-    masks: List
-):
+    masks: List[Dict]
+) -> List[np.ndarray]:
+    """
+    Create list of images with mask data. Masks are sorted by area in descending order.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+
+    Returns:
+        List of RGBA images
+    """
     layer_list = []
 
     sorted_masks = sorted(masks, key=lambda x: x['area'], reverse=True)
@@ -52,8 +64,19 @@ def create_mask_layers(
 
 def create_mask_gallery(
     image: np.ndarray,
-    masks: List
-):
+    masks: List[Dict]
+) -> List[List[np.ndarray, str]]:
+    """
+    Create list of images with mask data. Masks are sorted by area in descending order. Specially used for gradio
+    Gallery component. each element has image and label, where label is the part number.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+
+    Returns:
+        List of [image, label] pairs
+    """
     mask_array_list = []
     label_list = []
 
@@ -74,8 +97,18 @@ def create_mask_gallery(
 
 def create_mask_combined_images(
     image: np.ndarray,
-    masks: List
-):
+    masks: List[Dict]
+) -> List[np.ndarray, str]:
+    """
+    Create an image with colored masks. Each mask is colored with a random color and blended with the original image.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+
+    Returns:
+        List of [image, label] pairs
+    """
     final_result = np.zeros_like(image)
     used_colors = set()
 
@@ -106,9 +139,21 @@ def create_mask_combined_images(
 
 def create_mask_pixelized_image(
     image: np.ndarray,
-    masks: List,
+    masks: List[Dict],
     pixel_size: int = DEFAULT_PIXEL_SIZE
 ) -> np.ndarray:
+    """
+    Create a pixelized image with mask.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+        pixel_size: Pixel size for pixelization
+
+    Returns:
+        Pixelized image
+    """
+
     final_result = image.copy()
 
     def pixelize(img: np.ndarray, mask: np.ndarray[np.uint8], pixel_size: int):
@@ -132,9 +177,20 @@ def create_mask_pixelized_image(
 
 def create_solid_color_mask_image(
     image: np.ndarray,
-    masks: List,
+    masks: List[Dict],
     color_hex: str = DEFAULT_COLOR
 ) -> np.ndarray:
+    """
+    Create an image with solid color masks.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+        color_hex: Hex color code
+
+    Returns:
+        Image with solid color masks
+    """
     final_result = image.copy()
 
     def hex_to_bgr(hex_color: str):
@@ -160,7 +216,20 @@ def insert_psd_layer(
     image_data: np.ndarray,
     layer_name: str,
     blending_mode: BlendMode
-):
+) -> PsdFile:
+    """
+    Insert a layer into the PSD file using pytoshop
+
+    Args:
+        psd: PSD file object from the pytoshop
+        image_data: Image data
+        layer_name: Layer name
+        blending_mode: Blending mode from pytoshop
+
+    Returns:
+        Updated PSD file object
+    """
+
     channel_data = [layers.ChannelImageData(image=image_data[:, :, i], compression=1) for i in range(4)]
 
     layer_record = layers.LayerRecord(
@@ -181,6 +250,17 @@ def save_psd(
     blending_modes: List,
     output_path: str
 ):
+    """
+    Save the image with multiple layers as a PSD file
+
+    Args:
+        input_image_data: Original image data
+        layer_data: List of images to be saved as layers
+        layer_names: List of layer names
+        blending_modes: List of blending modes
+        output_path: Output path for the PSD file
+    """
+
     psd_file = PsdFile(num_channels=3, height=input_image_data.shape[0], width=input_image_data.shape[1])
     psd_file.layer_and_mask_info.layer_info.layer_records.clear()
 
@@ -193,9 +273,17 @@ def save_psd(
 
 def save_psd_with_masks(
     image: np.ndarray,
-    masks: List,
+    masks: List[Dict],
     output_path: str
 ):
+    """
+    Save the psd file with masks data.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+        output_path: Output path for the PSD file
+    """
     original_layer = create_base_layer(image)
     mask_layers = create_mask_layers(image, masks)
     names = [f'Part {i}' for i in range(len(mask_layers))]
