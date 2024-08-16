@@ -3,6 +3,8 @@ from PIL import Image
 from typing import Optional, Union
 import numpy as np
 
+from modules.constants import IMAGE_FILE_EXT
+
 
 def open_folder(folder_path: str):
     if os.path.exists(folder_path):
@@ -12,8 +14,7 @@ def open_folder(folder_path: str):
 
 
 def is_image_file(filename):
-    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp'}
-    return os.path.splitext(filename.lower())[1] in image_extensions
+    return os.path.splitext(filename.lower())[1] in IMAGE_FILE_EXT
 
 
 def get_image_files(image_dir: str):
