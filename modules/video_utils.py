@@ -229,6 +229,7 @@ def clean_temp_dir(temp_dir: Optional[str] = None):
 
 
 def clean_files_with_extension(dir_path: str, extensions: List):
+    """Remove files with the given extensions from the directory."""
     for filename in os.listdir(dir_path):
         if filename.lower().endswith(tuple(extensions)):
             file_path = os.path.join(dir_path, filename)

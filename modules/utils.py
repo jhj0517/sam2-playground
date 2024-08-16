@@ -7,17 +7,20 @@ from modules.constants import IMAGE_FILE_EXT
 
 
 def open_folder(folder_path: str):
+    """Open the folder in the file explorer"""
     if os.path.exists(folder_path):
         os.system(f'start "" "{folder_path}"')
     else:
         print(f"The folder '{folder_path}' does not exist.")
 
 
-def is_image_file(filename):
+def is_image_file(filename: str):
+    """Check if the file is an image file"""
     return os.path.splitext(filename.lower())[1] in IMAGE_FILE_EXT
 
 
 def get_image_files(image_dir: str):
+    """Get all image files in the directory"""
     image_files = []
     for filename in os.listdir(image_dir):
         if is_image_file(filename):
@@ -28,6 +31,8 @@ def get_image_files(image_dir: str):
 def save_image(image: Union[np.ndarray, str],
                output_path: Optional[str] = None,
                output_dir: Optional[str] = None):
+    """Save the image to the output path or output directory. If output directory is provided,
+    the image will be saved as a numbered image file in the directory."""
 
     if output_dir is None and output_path is None:
         raise ValueError("Either output_path or output_dir should be provided")
