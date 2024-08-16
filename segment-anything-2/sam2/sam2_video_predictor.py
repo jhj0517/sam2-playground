@@ -220,6 +220,14 @@ class SAM2VideoPredictor(SAM2Base):
                 )
             if not isinstance(box, torch.Tensor):
                 box = torch.tensor(box, dtype=torch.float32, device=points.device)
+
+            if box.shape[0] > 1:
+                box = box[:1, :]
+                warnings.warn(
+                    "Box only works if there's only one. Using only the first one...",
+                    category=UserWarning,
+                )
+
             box_coords = box.reshape(1, 2, 2)
             box_labels = torch.tensor([2, 3], dtype=torch.int32, device=labels.device)
             box_labels = box_labels.reshape(1, 2)
