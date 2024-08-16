@@ -1,7 +1,6 @@
 from sam2.automatic_mask_generator import SAM2AutomaticMaskGenerator
 from sam2.build_sam import build_sam2, build_sam2_video_predictor
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-from sam2.sam2_video_predictor import SAM2VideoPredictor
 from typing import Dict, List, Optional
 import torch
 import os
@@ -10,12 +9,12 @@ import numpy as np
 import gradio as gr
 
 from modules.model_downloader import (
-    AVAILABLE_MODELS, DEFAULT_MODEL_TYPE, OUTPUT_DIR,
+    AVAILABLE_MODELS, DEFAULT_MODEL_TYPE,
     is_sam_exist,
     download_sam_model_url
 )
-from modules.paths import SAM2_CONFIGS_DIR, MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR
-from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT
+from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS, OUTPUT_DIR)
+from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT)
 from modules.mask_utils import (
     save_psd_with_masks,
     create_mask_combined_images,
@@ -28,12 +27,6 @@ from modules.video_utils import (get_frames_from_dir, create_video_from_frames, 
 from modules.utils import save_image
 from modules.logger_util import get_logger
 
-MODEL_CONFIGS = {
-    "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_t.yaml"),
-    "sam2_hiera_small": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_s.yaml"),
-    "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_b+.yaml"),
-    "sam2_hiera_large": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_l.yaml"),
-}
 logger = get_logger()
 
 
@@ -64,11 +57,12 @@ class SamInference:
 
         config = MODEL_CONFIGS[model_type]
         filename, url = AVAILABLE_MODELS[model_type]
+
         model_path = os.path.join(self.model_dir, filename)
 
-        if not is_sam_exist(model_type):
+        if not is_sam_exist(model_dir=self.model_dir, model_type=model_type):
             logger.info(f"No SAM2 model found, downloading {model_type} model...")
-            download_sam_model_url(model_type)
+            download_sam_model_url(model_dir=self.model_dir, model_type=model_type)
         logger.info(f"Applying configs to {model_type} model..")
 
         if load_video_predictor:
@@ -79,6 +73,7 @@ class SamInference:
                     ckpt_path=model_path,
                     device=self.device
                 )
+                return
             except Exception as e:
                 logger.exception("Error while loading SAM2 model for video predictor")
 
@@ -276,6 +271,7 @@ class SamInference:
                              "Please press the eraser button (on the image prompter) and add your prompts again.")
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
+        output_dir = os.path.join(self.output_dir, "filter")
 
         clean_files_with_extension(TEMP_OUT_DIR, IMAGE_FILE_EXT)
         self.video_predictor.reset_state(self.video_inference_state)
@@ -308,13 +304,13 @@ class SamInference:
             save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
 
         if len(video_segments) == 1:
-            out_image = save_image(image=filtered_image, output_dir=self.output_dir)
+            out_image = save_image(image=filtered_image, output_dir=output_dir)
             return None, out_image
 
         out_video = create_video_from_frames(
             frames_dir=TEMP_OUT_DIR,
             frame_rate=self.video_info.frame_rate,
-            output_dir=self.output_dir,
+            output_dir=output_dir,
         )
 
         return out_video, out_video
@@ -328,7 +324,6 @@ class SamInference:
         timestamp = datetime.now().strftime("%m%d%H%M%S")
         output_file_name = f"result-{timestamp}.psd"
         output_path = os.path.join(self.output_dir, "psd", output_file_name)
-
         # Pre-processed gradio components
         hparams = {
             'points_per_side': int(params[0]),
