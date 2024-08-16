@@ -135,7 +135,7 @@ class App:
 
                 with gr.TabItem("Pixelize Filter"):
                     with gr.Column():
-                        file_vid_input = gr.File(label="Input", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
+                        file_vid_input = gr.File(label="Input Video", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
                         with gr.Row(equal_height=True):
                             with gr.Column(scale=9):
                                 with gr.Row():

@@ -307,6 +307,10 @@ class SamInference:
 
             save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
 
+        if len(video_segments) == 1:
+            out_image = save_image(image=filtered_image, output_dir=self.output_dir)
+            return None, out_image
+
         out_video = create_video_from_frames(
             frames_dir=TEMP_OUT_DIR,
             frame_rate=self.video_info.frame_rate,
