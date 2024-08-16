@@ -10,7 +10,7 @@ from modules.model_downloader import DEFAULT_MODEL_TYPE
 from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR, OUTPUT_FILTER_DIR)
 from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
-                               DEFAULT_PIXEL_SIZE)
+                               DEFAULT_PIXEL_SIZE, SOUND_FILE_EXT, IMAGE_FILE_EXT, VIDEO_FILE_EXT)
 from modules.video_utils import extract_frames, extract_sound, get_frames_from_dir, clean_temp_dir
 
 
@@ -28,12 +28,12 @@ class App:
         self.default_pixel_size = DEFAULT_PIXEL_SIZE
         default_param_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
         with open(default_param_config_path, 'r') as file:
-            self.hparams = yaml.safe_load(file)
+            self.default_hparams = yaml.safe_load(file)
 
     def mask_parameters(self,
                         hparams: Optional[Dict] = None):
         if hparams is None:
-            hparams = self.hparams["mask_hparams"]
+            hparams = self.default_hparams["mask_hparams"]
         mask_components = [
             gr.Number(label="points_per_side ", value=hparams["points_per_side"], interactive=True),
             gr.Number(label="points_per_batch ", value=hparams["points_per_batch"], interactive=True),
@@ -135,10 +135,7 @@ class App:
 
                 with gr.TabItem("Pixelize Filter"):
                     with gr.Column():
-                        file_vid_input = gr.File(label="Input Video here", file_types=['.mp4', '.avi', '.mov', '.wmv',
-                                                                                       '.flv', '.webm', '.mkv', '.mpeg',
-                                                                                       '.mpg', '.m4v', '.3gp', '.ts',
-                                                                                       '.vob'])
+                        file_vid_input = gr.File(label="Input", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
                         with gr.Row(equal_height=True):
                             with gr.Column(scale=9):
                                 with gr.Row():
@@ -165,9 +162,9 @@ class App:
                     with gr.Row():
                         btn_generate = gr.Button("GENERATE", variant="primary")
                     with gr.Row():
-                        vid_output = gr.Video(label="Output video")
+                        vid_output = gr.Video(label="Output")
                         with gr.Column():
-                            output_file = gr.File(label="Downloadable Video Output File", scale=9)
+                            output_file = gr.File(label="Downloadable Output File", scale=9)
                             btn_open_folder = gr.Button("📁\nOpen Output folder", scale=1)
 
                     file_vid_input.change(fn=self.on_video_model_change,
