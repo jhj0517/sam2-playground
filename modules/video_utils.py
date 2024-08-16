@@ -150,6 +150,8 @@ def create_video_from_frames(
 
     if output_dir is None:
         output_dir = TEMP_OUT_DIR
+    os.makedirs(output_dir, exist_ok=True)
+
     num_files = len(os.listdir(output_dir))
     filename = f"{num_files:05d}.mp4"
     output_path = os.path.join(output_dir, filename)
