@@ -42,7 +42,12 @@ def load_file_from_url(
     return cached_file
 
 
-def is_sam_exist(model_type: str):
+def is_sam_exist(
+    model_type: str,
+    model_dir: Optional[str] = None
+):
+    if model_dir is None:
+        model_dir = MODELS_DIR
     filename, url = AVAILABLE_MODELS[model_type]
-    model_path = os.path.join(MODELS_DIR, filename)
+    model_path = os.path.join(model_dir, filename)
     return os.path.exists(model_path)
