@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import re
 
 from modules.logger_util import get_logger
+from modules.constants import SOUND_FILE_EXT, VIDEO_FILE_EXT, IMAGE_FILE_EXT
 from modules.paths import TEMP_DIR, TEMP_OUT_DIR
 
 logger = get_logger()
@@ -222,24 +223,12 @@ def clean_temp_dir(temp_dir: Optional[str] = None):
     else:
         temp_out_dir = os.path.join(temp_dir, "out")
 
-    clean_sound_files(temp_dir)
-    clean_image_files(temp_dir)
-    clean_image_files(temp_out_dir)
+    clean_files_with_extension(temp_dir, SOUND_FILE_EXT)
+    clean_files_with_extension(temp_dir, IMAGE_FILE_EXT)
+    clean_files_with_extension(temp_out_dir, IMAGE_FILE_EXT)
 
 
-def clean_sound_files(sound_dir: str):
-    """Removes all sound files from the directory."""
-    sound_extensions = ['.mp3', '.wav', '.aac', '.flac', '.ogg', '.m4a', '.wma']
-    _clean_files_with_extension(sound_dir, sound_extensions)
-
-
-def clean_image_files(image_dir: str):
-    """Removes all image files from the dir"""
-    image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.webp']
-    _clean_files_with_extension(image_dir, image_extensions)
-
-
-def _clean_files_with_extension(dir_path: str, extensions: List):
+def clean_files_with_extension(dir_path: str, extensions: List):
     for filename in os.listdir(dir_path):
         if filename.lower().endswith(tuple(extensions)):
             file_path = os.path.join(dir_path, filename)

@@ -15,7 +15,7 @@ from modules.model_downloader import (
     download_sam_model_url
 )
 from modules.paths import SAM2_CONFIGS_DIR, MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR
-from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER
+from modules.constants import BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT
 from modules.mask_utils import (
     save_psd_with_masks,
     create_mask_combined_images,
@@ -24,7 +24,7 @@ from modules.mask_utils import (
     create_solid_color_mask_image
 )
 from modules.video_utils import (get_frames_from_dir, create_video_from_frames, get_video_info, extract_frames,
-                                 extract_sound, clean_temp_dir, clean_image_files)
+                                 extract_sound, clean_temp_dir, clean_files_with_extension)
 from modules.utils import save_image
 from modules.logger_util import get_logger
 
@@ -277,14 +277,14 @@ class SamInference:
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
 
-        clean_image_files(TEMP_OUT_DIR)
+        clean_files_with_extension(TEMP_OUT_DIR, IMAGE_FILE_EXT)
+        self.video_predictor.reset_state(self.video_inference_state)
 
         prompt_frame_image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
 
         point_labels, point_coords, box = self.handle_prompt_data(prompt)
         obj_id = frame_idx
 
-        self.video_predictor.reset_state(self.video_inference_state)
         idx, scores, logits = self.add_prediction_to_frame(
             frame_idx=frame_idx,
             obj_id=obj_id,
