@@ -10,7 +10,3 @@ mask_hparams:
   min_mask_region_area: 25.0
   use_m2m: true
   multimask_output: true
-
-filter:
-  default_pixel_size: 8
-  default_solid_color: "#00FF00"
