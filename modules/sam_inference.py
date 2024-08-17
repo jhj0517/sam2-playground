@@ -62,7 +62,9 @@ class SamInference:
         if model_type is None:
             model_type = DEFAULT_MODEL_TYPE
 
-        config = MODEL_CONFIGS[model_type]
+        config_path = MODEL_CONFIGS[model_type]
+        config_dir, config_name = os.path.split(config_path)
+
         filename, url = AVAILABLE_MODELS[model_type]
 
         model_path = os.path.join(self.model_dir, filename)
@@ -76,7 +78,7 @@ class SamInference:
             try:
                 self.model = None
                 self.video_predictor = build_sam2_video_predictor(
-                    config_file=config,
+                    config_file=config_name,
                     ckpt_path=model_path,
                     device=self.device
                 )
@@ -86,7 +88,7 @@ class SamInference:
 
         try:
             self.model = build_sam2(
-                config_file=config,
+                config_file=config_name,
                 ckpt_path=model_path,
                 device=self.device
             )
