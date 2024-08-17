@@ -171,7 +171,7 @@ class App:
                     with gr.Row():
                         btn_generate = gr.Button("GENERATE", variant="primary")
                     with gr.Row():
-                        vid_output = gr.Video(label="Output")
+                        vid_output = gr.Video(label="Output Video", interactive=False)
                         with gr.Column():
                             output_file = gr.File(label="Downloadable Output File", scale=9)
                             btn_open_folder = gr.Button("📁\nOpen Output folder", scale=1)
