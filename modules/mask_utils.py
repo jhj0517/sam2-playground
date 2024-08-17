@@ -65,7 +65,7 @@ def create_mask_layers(
 def create_mask_gallery(
     image: np.ndarray,
     masks: List[Dict]
-) -> List[List[np.ndarray, str]]:
+) -> List:
     """
     Create list of images with mask data. Masks are sorted by area in descending order. Specially used for gradio
     Gallery component. each element has image and label, where label is the part number.
@@ -98,7 +98,7 @@ def create_mask_gallery(
 def create_mask_combined_images(
     image: np.ndarray,
     masks: List[Dict]
-) -> List[np.ndarray, str]:
+) -> List:
     """
     Create an image with colored masks. Each mask is colored with a random color and blended with the original image.
 
@@ -107,7 +107,7 @@ def create_mask_combined_images(
         masks: List of mask data
 
     Returns:
-        List of [image, label] pairs
+        [image, label] pairs
     """
     final_result = np.zeros_like(image)
     used_colors = set()
