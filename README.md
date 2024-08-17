@@ -11,7 +11,10 @@ Gradio based Playground Web UI using [facebook/segment-anything-2](https://githu
     </a>
 </div>
 
-# Feature
+## Feature
+- Add Filter to segment parts with pixelized or solid color in a video
+
+- Divide segment parts as layers and save them as a PSD file. 
 
 # Installation and Running
 
