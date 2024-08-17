@@ -5,6 +5,7 @@ from typing import List, Dict, Optional, Union
 import os
 import yaml
 
+from modules.html_constants import (HEADER, DEFAULT_THEME, CSS)
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
 from modules.paths import (OUTPUT_DIR, OUTPUT_PSD_DIR, SAM2_CONFIGS_DIR, TEMP_DIR, OUTPUT_FILTER_DIR, MODELS_DIR)
@@ -17,8 +18,11 @@ from modules.video_utils import get_frames_from_dir
 class App:
     def __init__(self,
                  args: argparse.Namespace):
-        self.demo = gr.Blocks()
         self.args = args
+        self.demo = gr.Blocks(
+            theme=self.args.theme,
+            css=CSS
+        )
         self.sam_inf = SamInference(
             model_dir=self.args.model_dir,
             output_dir=self.args.output_dir
@@ -96,6 +100,8 @@ class App:
         _mask_hparams = self.default_hparams["mask_hparams"]
 
         with self.demo:
+            md_header = gr.Markdown(HEADER, elem_id="md_header")
+
             with gr.Tabs():
                 with gr.TabItem("Layer Divider"):
                     with gr.Row():
@@ -210,6 +216,7 @@ if __name__ == "__main__":
                         help='Whether to automatically start Gradio app or not')
     parser.add_argument('--share', type=bool, default=False, nargs='?', const=True,
                         help='Whether to create a public link for the app or not')
+    parser.add_argument('--theme', type=str, default=DEFAULT_THEME, help='Gradio Blocks theme')
     args = parser.parse_args()
 
     demo = App(args=args)
