@@ -208,7 +208,7 @@ if __name__ == "__main__":
                         help='Output directory for the results')
     parser.add_argument('--inbrowser', type=bool, default=True, nargs='?', const=True,
                         help='Whether to automatically start Gradio app or not')
-    parser.add_argument('--share', type=bool, default=True, nargs='?', const=False,
+    parser.add_argument('--share', type=bool, default=False, nargs='?', const=True,
                         help='Whether to create a public link for the app or not')
     args = parser.parse_args()
 
