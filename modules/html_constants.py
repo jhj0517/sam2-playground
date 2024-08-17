@@ -7,7 +7,7 @@ HEADER = """
     <a href="">
         <img src="https://img.shields.io/badge/GitHub-Wiki-blue?logo=github" alt="Github Wiki" style="display:inline-block;">
     </a>
-    <a href="">
+    <a href="https://colab.research.google.com/github/jhj0517/sam2-playground/blob/master/notebooks/sam2_playground.ipynb">
         <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" style="display:inline-block;">
     </a>
 </div>
