@@ -207,7 +207,12 @@ class App:
 
         self.demo.queue().launch(
             inbrowser=self.args.inbrowser,
-            share=self.args.share
+            share=self.args.share,
+            server_name=self.args.server_name,
+            server_port=self.args.server_port,
+            root_path=self.args.root_path,
+            username=self.args.username,
+            password=self.args.password
         )
 
 
@@ -222,6 +227,11 @@ if __name__ == "__main__":
     parser.add_argument('--share', type=bool, default=False, nargs='?', const=True,
                         help='Whether to create a public link for the app or not')
     parser.add_argument('--theme', type=str, default=DEFAULT_THEME, help='Gradio Blocks theme')
+    parser.add_argument('--server_name', type=str, default=None, help='Gradio server host')
+    parser.add_argument('--server_port', type=int, default=None, help='Gradio server port')
+    parser.add_argument('--root_path', type=str, default=None, help='Gradio root path')
+    parser.add_argument('--username', type=str, default=None, help='Gradio authentication username')
+    parser.add_argument('--password', type=str, default=None, help='Gradio authentication password')
     args = parser.parse_args()
 
     demo = App(args=args)
