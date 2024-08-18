@@ -3,5 +3,8 @@ outputs/
 models/
 venv/
 *.png
+!docs/example_image_segmentation.png
+!docs/example_psd_file.png
 *.jpg
 *.mp4
+!docs/example_video.mp4
