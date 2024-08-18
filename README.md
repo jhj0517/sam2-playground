@@ -42,7 +42,7 @@ See PROMPT_GUIDE.md to see how to prompt the segmentation parts of the image.
 To run this Web UI, you need these prerequisites. If you don't have them, please install them in the following links :
 
 - `git` : https://git-scm.com/downloads
-- `python => 3.10` : https://www.python.org/downloads/ 
+- `python=>3.10` : https://www.python.org/downloads/ 
 - `FFmpeg` : https://ffmpeg.org/download.html
  
 After installing FFmpeg, **make sure to add the `FFmpeg/bin` folder to your system PATH!** <br>
