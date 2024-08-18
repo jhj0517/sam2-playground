@@ -1,0 +1,13 @@
+venv/
+outputs/
+modules/__pycache__/
+models/
+temp/
+
+*.mp4
+*.jpg
+*.png
+
+.idea
+.git
+.github
