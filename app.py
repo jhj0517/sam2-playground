@@ -5,6 +5,7 @@ from typing import List, Dict, Optional, Union
 import os
 import yaml
 
+from modules.logger_util import get_logger
 from modules.html_constants import (HEADER, DEFAULT_THEME, CSS)
 from modules.sam_inference import SamInference
 from modules.model_downloader import DEFAULT_MODEL_TYPE
@@ -13,6 +14,9 @@ from modules.utils import open_folder
 from modules.constants import (AUTOMATIC_MODE, BOX_PROMPT_MODE, PIXELIZE_FILTER, COLOR_FILTER, DEFAULT_COLOR,
                                DEFAULT_PIXEL_SIZE, SOUND_FILE_EXT, IMAGE_FILE_EXT, VIDEO_FILE_EXT)
 from modules.video_utils import get_frames_from_dir
+
+
+logger = get_logger()
 
 
 class App:
@@ -27,6 +31,7 @@ class App:
             model_dir=self.args.model_dir,
             output_dir=self.args.output_dir
         )
+        logger.info(f'device "{self.sam_inf.device}" is detected')
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = BOX_PROMPT_MODE
         self.filter_modes = [PIXELIZE_FILTER, COLOR_FILTER]
