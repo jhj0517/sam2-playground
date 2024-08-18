@@ -211,8 +211,10 @@ class App:
             server_name=self.args.server_name,
             server_port=self.args.server_port,
             root_path=self.args.root_path,
-            username=self.args.username,
-            password=self.args.password
+            auth={
+                "username": self.args.username,
+                "password": self.args.password
+            } if self.args.username and self.args.password else None
         )
 
 
