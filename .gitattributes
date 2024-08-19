@@ -1,5 +1,11 @@
 docs/example_video.mp4 filter=lfs diff=lfs merge=lfs -text
 docs/example_psd_file.png filter=lfs diff=lfs merge=lfs -text
+docs/image_prompter_screenshot.png filter=lfs diff=lfs merge=lfs -text
+docs/prompt_with_box_and_point_combination.png filter=lfs diff=lfs merge=lfs -text
+docs/prompt_with_negative_points.png filter=lfs diff=lfs merge=lfs -text
+docs/prompt_with_point.png filter=lfs diff=lfs merge=lfs -text
+docs/prompt_with_box.png filter=lfs diff=lfs merge=lfs -text
+docs/eraser_button.png filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.gif filter=lfs diff=lfs merge=lfs -text
