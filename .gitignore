@@ -5,6 +5,12 @@ venv/
 *.png
 !docs/example_image_segmentation.png
 !docs/example_psd_file.png
+!docs/eraser_button.png
+!docs/image_prompter_screenshot.png
+!docs/prompt_with_box.png
+!docs/prompt_with_box_and_point_combination.png
+!docs/prompt_with_negative_points.png
+!docs/prompt_with_point.png
 *.jpg
 *.mp4
 !docs/example_video.mp4
