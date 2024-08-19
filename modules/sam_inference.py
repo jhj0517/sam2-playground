@@ -40,7 +40,6 @@ class SamInference:
         self.current_model_type = DEFAULT_MODEL_TYPE
         self.model_dir = model_dir
         self.output_dir = output_dir
-        self.model_path = os.path.join(self.model_dir, AVAILABLE_MODELS[DEFAULT_MODEL_TYPE][0])
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.mask_generator = None
@@ -272,7 +271,7 @@ class SamInference:
             )
             images = get_frames_from_dir(vid_dir=TEMP_DIR, as_numpy=True)
 
-            with torch.autocast(device_type=self.device, dtype=torch.float16):
+            with torch.autocast(device_type=self.device, dtype=self.dtype):
                 for out_frame_idx, out_obj_ids, out_mask_logits in generator:
                     mask = (out_mask_logits[0] > 0.0).cpu().numpy()
                     video_segments[out_frame_idx] = {
