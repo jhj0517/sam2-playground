@@ -141,7 +141,7 @@ class App:
 
                     btn_generate.click(fn=self.sam_inf.divide_layer,
                                        inputs=input_params, outputs=[gallery_output, output_file])
-                    btn_open_folder.click(fn=lambda: open_folder(OUTPUT_PSD_DIR),
+                    btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "psd")),
                                           inputs=None, outputs=None)
                     dd_input_modes.change(fn=self.on_mode_change,
                                           inputs=[dd_input_modes],
@@ -203,7 +203,9 @@ class App:
                     btn_generate.click(fn=self.sam_inf.create_filtered_video,
                                        inputs=preview_params,
                                        outputs=[vid_output, output_file])
-                    btn_open_folder.click(fn=lambda: open_folder(OUTPUT_FILTER_DIR), inputs=None, outputs=None)
+                    btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "filter")),
+                                          inputs=None,
+                                          outputs=None)
 
         self.demo.queue().launch(
             inbrowser=self.args.inbrowser,
