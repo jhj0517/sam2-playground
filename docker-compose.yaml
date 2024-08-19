@@ -6,13 +6,26 @@ services:
     image: jhj0517/sam2-playground:latest
 
     volumes:
-      # Mount models and output paths to your custom paths like this, e.g:
+      # Update paths to mount models and output paths to your custom paths, e.g:
       # - C:/sam2-models/custom/path:/sam2-playground/models
       # - C:/sam2-playground-outputs/custom/path:/sam2-playground/outputs
-      - /sam2-playground/models
-      - /sam2-playground/outputs
+      - C:\FaceParsing_Project\sam2-playground\models:/sam2-playground/models
+      - C:\FaceParsing_Project\sam2-playground\models:/sam2-playground/outputs
 
     ports:
-      - "8080:8080"
+      - "7860:7860"
 
-    entrypoint: ["python", "app.py", "--server_port", "8080", "--server_name", "0.0.0.0",]
+    stdin_open: true
+    tty: true
+
+    entrypoint: ["python", "app.py", "--server_port", "7860", "--server_name", "0.0.0.0",]
+
+    # If you're not using nvidia GPU, Update device to match yours.
+    # See more info at : https://docs.docker.com/compose/compose-file/deploy/#driver
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
