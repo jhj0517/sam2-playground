@@ -48,6 +48,10 @@ class SamInference:
         self.video_inference_state = None
         self.video_info = None
 
+        # Initialization on huggingface space
+        for model_name in self.available_models:
+            self.load_model(model_type=model_name)
+
     def load_model(self,
                    model_type: Optional[str] = None,
                    load_video_predictor: bool = False):
