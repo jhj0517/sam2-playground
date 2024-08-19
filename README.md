@@ -2,11 +2,9 @@
 Gradio based Playground Web UI using [facebook/segment-anything-2](https://github.com/facebookresearch/segment-anything-2) models.
 
 ### Online Demos
-<div>
-    <a href="https://colab.research.google.com/github/jhj0517/sam2-playground/blob/master/notebooks/sam2_playground.ipynb">
-        <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab" style="display:inline-block;">
-    </a>
-</div>
+
+[![colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jhj0517/sam2-playground/blob/master/notebooks/sam2_playground.ipynb)
+[![huggingface](https://img.shields.io/badge/Hugging%20Face-%F0%9F%A4%97%20Spaces-orange?logo=huggingface&labelColor=FFFFE0)](https://huggingface.co/spaces/jhj0517/sam2-playground)
 
 ## Feature
 - Add filters to segment parts of a video with pixelated or solid color
