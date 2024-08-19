@@ -4,7 +4,7 @@ HEADER = """
 ## [sam2-playground](https://github.com/jhj0517/sam2-playground)
 
 <div>
-    <a href="">
+    <a href="https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md">
         <img src="https://img.shields.io/badge/GitHub-Wiki-blue?logo=github" alt="Github Wiki" style="display:inline-block;">
     </a>
     <a href="https://colab.research.google.com/github/jhj0517/sam2-playground/blob/master/notebooks/sam2_playground.ipynb">
