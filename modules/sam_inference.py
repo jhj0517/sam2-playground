@@ -90,6 +90,7 @@ class SamInference:
                 logger.exception("Error while loading SAM2 model for video predictor")
 
         try:
+            self.video_predictor = None
             self.model = build_sam2(
                 config_file=config_name,
                 ckpt_path=model_path,
