@@ -36,7 +36,7 @@ Gradio based Playground Web UI using [facebook/segment-anything-2](https://githu
   </tr>
 </table>
 
-See PROMPT_GUIDE.md to see how to prompt the segmentation parts of the image.
+See [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md) to see how to prompt the segmentation parts of the image.
 
 # Installation and Running
 ### Prerequisites
