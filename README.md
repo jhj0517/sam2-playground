@@ -70,7 +70,7 @@ docker compose build
 ```
 docker compose up
 ```
-3. Connect to `localhost:7860` with your browser.
+4. Connect to `localhost:7860` with your browser.
 
 If needed, update [`docker-compose.yaml`](https://github.com/jhj0517/sam2-playground/blob/master/docker-compose.yaml) to match your environments.
 
