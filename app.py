@@ -42,8 +42,8 @@ class App:
         with open(default_hparam_config_path, 'r') as file:
             self.default_hparams = yaml.safe_load(file)
 
-    def mask_parameters(self,
-                        hparams: Optional[Dict] = None):
+    def mask_generation_parameters(self,
+                                   hparams: Optional[Dict] = None):
         if hparams is None:
             hparams = self.default_hparams["mask_hparams"]
         mask_components = [
@@ -122,7 +122,7 @@ class App:
                                                     choices=self.sam_inf.available_models)
 
                             with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
-                                mask_hparams_component = self.mask_parameters(_mask_hparams)
+                                mask_hparams_component = self.mask_generation_parameters(_mask_hparams)
 
                             cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
 
