@@ -1,0 +1,13 @@
+torch
+torchvision
+pytest
+gradio
+git+https://github.com/jhj0517/gradio-image-prompter.git
+opencv-python
+pycocotools
+git+https://github.com/jhj0517/segment-anything-2.git
+git+https://github.com/jhj0517/forked-pytoshop.git
+packbits
+hydra-core
+numpy==1.26.4
+wheel
