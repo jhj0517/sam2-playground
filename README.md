@@ -1,5 +1,5 @@
 # sam2-playground
-Gradio based playground Web UI using [facebook/segment-anything-2](https://github.com/facebookresearch/segment-anything-2) models.
+Gradio based playground web UI using [facebook/segment-anything-2](https://github.com/facebookresearch/segment-anything-2) models.
 
 ### Online Demos
 
