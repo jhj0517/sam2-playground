@@ -13,7 +13,7 @@ Gradio based Playground Web UI using [facebook/segment-anything-2](https://githu
 
 <table>
   <tr>
-    <td>Pixelize the girl's face</td>
+    <td align="center"><strong>Pixelize the girl's face</strong></td>
   </tr>
   <tr>
     <td>
@@ -22,14 +22,15 @@ Gradio based Playground Web UI using [facebook/segment-anything-2](https://githu
   </tr>
 </table>
 
+
 - Divide segmentation parts into layers and save them as PSD files.
 
 <table>
   <tr>
-    <td>Divide clothes into layers and save as PSD file</td>
+    <td align="center"><strong>Divide clothes into layers and save as PSD file</strong></td>
   </tr>
   <tr>
-    <td>
+    <td style="text-align: center;">
         <img src="https://github.com/jhj0517/sam2-playground/blob/master/docs/example_psd_file.png" alt="Example_PSD">
     </td>
   </tr>
@@ -57,17 +58,21 @@ There's a set of shell / batch scripts for installation and running.
 4. To update, run `update.bat` or `update.sh` 
 
 ### Option 2: Docker
-1. Build the image ( Image is about ~6 GB )
+1. Clone the repository
+```
+git clone https://github.com/jhj0517/sam2-playground.git
+```
+3. Build the image ( Image is about ~6 GB )
 ```
 docker compose build
 ```
-2. Run the container
+3. Run the container
 ```
 docker compose up
 ```
 3. Connect to `localhost:7860` with your browser.
 
-Update [`docker-compose.yaml`](https://github.com/jhj0517/sam2-playground/blob/master/docker-compose.yaml) to match your environments.
+If needed, update [`docker-compose.yaml`](https://github.com/jhj0517/sam2-playground/blob/master/docker-compose.yaml) to match your environments.
 
-## Todo
+## Todo 🗓
 - [ ] Support `change()` API for `gradio_image_prompter` and automatically generate preview for video predictor
