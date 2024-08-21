@@ -108,48 +108,9 @@ class App:
             md_header = gr.Markdown(HEADER, elem_id="md_header")
 
             with gr.Tabs():
-                with gr.TabItem("Layer Divider"):
-                    with gr.Row():
-                        with gr.Column(scale=5):
-                            img_input = gr.Image(label="Input image here", visible=self.default_mode == AUTOMATIC_MODE)
-                            img_input_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
-                                                               visible=self.default_mode == BOX_PROMPT_MODE)
-
-                        with gr.Column(scale=5):
-                            dd_input_modes = gr.Dropdown(label="Image Input Mode", value=self.default_mode,
-                                                         choices=self.image_modes)
-                            dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
-                                                    choices=self.sam_inf.available_models)
-
-                            with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
-                                mask_hparams_component = self.mask_generation_parameters(_mask_hparams)
-
-                            cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
-
-                    with gr.Row():
-                        btn_generate = gr.Button("GENERATE", variant="primary")
-                    with gr.Row():
-                        gallery_output = gr.Gallery(label="Output images will be shown here")
-                        with gr.Column():
-                            output_file = gr.File(label="Generated psd file", scale=9)
-                            btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
-
-                    sources = [img_input, img_input_prompter, dd_input_modes]
-                    model_params = [dd_models]
-                    mask_hparams = mask_hparams_component + [cb_multimask_output]
-                    input_params = sources + model_params + mask_hparams
-
-                    btn_generate.click(fn=self.sam_inf.divide_layer,
-                                       inputs=input_params, outputs=[gallery_output, output_file])
-                    btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "psd")),
-                                          inputs=None, outputs=None)
-                    dd_input_modes.change(fn=self.on_mode_change,
-                                          inputs=[dd_input_modes],
-                                          outputs=[img_input, img_input_prompter, acc_mask_hparams])
-
-                with gr.TabItem("Pixelize Filter"):
+                with gr.TabItem("Filter to Video"):
                     with gr.Column():
-                        file_vid_input = gr.File(label="Input Video", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
+                        file_vid_input = gr.File(label="Upload Input Video", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
                         with gr.Row(equal_height=True):
                             with gr.Column(scale=9):
                                 with gr.Row():
@@ -206,6 +167,45 @@ class App:
                     btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "filter")),
                                           inputs=None,
                                           outputs=None)
+
+                with gr.TabItem("Layer Divider"):
+                    with gr.Row():
+                        with gr.Column(scale=5):
+                            img_input = gr.Image(label="Input image here", visible=self.default_mode == AUTOMATIC_MODE)
+                            img_input_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
+                                                               visible=self.default_mode == BOX_PROMPT_MODE)
+
+                        with gr.Column(scale=5):
+                            dd_input_modes = gr.Dropdown(label="Image Input Mode", value=self.default_mode,
+                                                         choices=self.image_modes)
+                            dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
+                                                    choices=self.sam_inf.available_models)
+
+                            with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
+                                mask_hparams_component = self.mask_generation_parameters(_mask_hparams)
+
+                            cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
+
+                    with gr.Row():
+                        btn_generate = gr.Button("GENERATE", variant="primary")
+                    with gr.Row():
+                        gallery_output = gr.Gallery(label="Output images will be shown here")
+                        with gr.Column():
+                            output_file = gr.File(label="Generated psd file", scale=9)
+                            btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
+
+                    sources = [img_input, img_input_prompter, dd_input_modes]
+                    model_params = [dd_models]
+                    mask_hparams = mask_hparams_component + [cb_multimask_output]
+                    input_params = sources + model_params + mask_hparams
+
+                    btn_generate.click(fn=self.sam_inf.divide_layer,
+                                       inputs=input_params, outputs=[gallery_output, output_file])
+                    btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "psd")),
+                                          inputs=None, outputs=None)
+                    dd_input_modes.change(fn=self.on_mode_change,
+                                          inputs=[dd_input_modes],
+                                          outputs=[img_input, img_input_prompter, acc_mask_hparams])
 
         self.demo.queue().launch(
             inbrowser=self.args.inbrowser,
