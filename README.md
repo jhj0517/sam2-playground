@@ -7,6 +7,18 @@ Gradio based playground web UI using [facebook/segment-anything-2](https://githu
 [![huggingface](https://img.shields.io/badge/Hugging%20Face-%F0%9F%A4%97%20Spaces-orange?logo=huggingface&labelColor=FFFFE0)](https://huggingface.co/spaces/jhj0517/sam2-playground)
 
 ## Feature
+- Easy green background video by inverting mask
+<table>
+  <tr>
+    <td align="center"><strong>Green background video</strong></td>
+  </tr>
+  <tr>
+    <td>
+      <video controls autoplay loop src="https://github.com/user-attachments/assets/4155f77f-23e3-4043-a788-d55176e999a0" muted="false"></video>
+    </td>
+  </tr>
+</table>
+
 - Add filters to segment parts of a video with pixelated or solid color
 
 <table>
@@ -21,7 +33,7 @@ Gradio based playground web UI using [facebook/segment-anything-2](https://githu
 </table>
 
 
-- Divide segmentation parts into layers and save them as PSD files.
+- Divide segmentation parts of the image into layers and save them as PSD files.
 
 <table>
   <tr>
