@@ -132,6 +132,7 @@ class App:
                                 nb_pixel_size = gr.Number(label="Pixel Size", interactive=True, minimum=1,
                                                           visible=self.default_filter == PIXELIZE_FILTER,
                                                           value=self.default_pixel_size)
+                                cb_invert_mask = gr.Checkbox(label="invert mask", value=_mask_hparams["invert_mask"])
                                 btn_generate_preview = gr.Button("GENERATE PREVIEW")
 
                     with gr.Row():
@@ -157,7 +158,7 @@ class App:
                                                    nb_pixel_size])
 
                     preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size,
-                                      cp_color_picker]
+                                      cp_color_picker, cb_invert_mask]
                     btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
                                                inputs=preview_params,
                                                outputs=[img_preview])
@@ -180,6 +181,7 @@ class App:
                                                          choices=self.image_modes)
                             dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
                                                     choices=self.sam_inf.available_models)
+                            cb_invert_mask = gr.Checkbox(label="invert mask", value=_mask_hparams["invert_mask"])
 
                             with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
                                 mask_hparams_component = self.mask_generation_parameters(_mask_hparams)
@@ -194,10 +196,9 @@ class App:
                             output_file = gr.File(label="Generated psd file", scale=9)
                             btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
 
-                    sources = [img_input, img_input_prompter, dd_input_modes]
-                    model_params = [dd_models]
+                    input_params = [img_input, img_input_prompter, dd_input_modes, dd_models, cb_invert_mask]
                     mask_hparams = mask_hparams_component + [cb_multimask_output]
-                    input_params = sources + model_params + mask_hparams
+                    input_params += mask_hparams
 
                     btn_generate.click(fn=self.sam_inf.divide_layer,
                                        inputs=input_params, outputs=[gallery_output, output_file])
