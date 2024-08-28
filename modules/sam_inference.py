@@ -28,6 +28,8 @@ from modules.video_utils import (get_frames_from_dir, create_video_from_frames, 
 from modules.utils import save_image
 from modules.logger_util import get_logger
 
+import spaces
+
 logger = get_logger()
 
 
@@ -41,8 +43,8 @@ class SamInference:
         self.current_model_type = DEFAULT_MODEL_TYPE
         self.model_dir = model_dir
         self.output_dir = output_dir
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.dtype = torch.float16 if torch.cuda.is_available() else torch.bfloat16
+        self.device = self.get_device()
+        self.dtype = self.get_dtype()
         self.mask_generator = None
         self.image_predictor = None
         self.video_predictor = None
@@ -53,6 +55,7 @@ class SamInference:
         for model_name in self.available_models:
             self.load_model(model_type=model_name)
 
+    @spaces.GPU
     def load_model(self,
                    model_type: Optional[str] = None,
                    load_video_predictor: bool = False):
@@ -101,6 +104,7 @@ class SamInference:
             logger.exception("Error while loading SAM2 model")
             raise RuntimeError(f"Failed to load model") from e
 
+    @spaces.GPU
     def init_video_inference_state(self,
                                    vid_input: str,
                                    model_type: Optional[str] = None):
@@ -131,6 +135,7 @@ class SamInference:
 
         self.video_inference_state = self.video_predictor.init_state(video_path=frames_temp_dir)
 
+    @spaces.GPU
     def generate_mask(self,
                       image: np.ndarray,
                       model_type: str,
@@ -168,6 +173,7 @@ class SamInference:
 
         return generated_masks
 
+    @spaces.GPU
     def predict_image(self,
                       image: np.ndarray,
                       model_type: str,
@@ -215,6 +221,7 @@ class SamInference:
 
         return masks, scores, logits
 
+    @spaces.GPU
     def add_prediction_to_frame(self,
                                 frame_idx: int,
                                 obj_id: int,
@@ -261,6 +268,7 @@ class SamInference:
 
         return out_frame_idx, out_obj_ids, out_mask_logits
 
+    @spaces.GPU
     def propagate_in_video(self,
                            inference_state: Optional[Dict] = None,):
         """
@@ -303,6 +311,7 @@ class SamInference:
 
         return video_segments
 
+    @spaces.GPU
     def add_filter_to_preview(self,
                               image_prompt_input_data: Dict,
                               filter_mode: str,
@@ -365,6 +374,7 @@ class SamInference:
 
         return image
 
+    @spaces.GPU
     def create_filtered_video(self,
                               image_prompt_input_data: Dict,
                               filter_mode: str,
@@ -445,6 +455,7 @@ class SamInference:
 
         return out_video, out_video
 
+    @spaces.GPU
     def divide_layer(self,
                      image_input: np.ndarray,
                      image_prompt_input_data: Dict,
@@ -564,3 +575,11 @@ class SamInference:
         box = np.array(box) if box else None
 
         return point_labels, point_coords, box
+
+    @spaces.GPU
+    def get_device(self):
+        return "cuda" if torch.cuda.is_available() else "cpu"
+
+    @spaces.GPU
+    def get_dtype(self):
+        return torch.float16 if torch.cuda.is_available() else torch.bfloat16
