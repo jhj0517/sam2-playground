@@ -31,7 +31,7 @@ To segment only the face, place positive points (blue dots) on the face and a ne
 
 
 ### Known bugs in the Web UI
-In the "Pixelize Filter" tab, you should reset the prompt by pressing the eraser button on the image prompter whenever you change the frame index, as the previous prompt remains even after you've changed the frame index. <br>
+In the "Filter to Video" tab, you should reset the prompt by pressing the eraser button on the image prompter whenever you change the frame index, as the previous prompt remains even after you've changed the frame index. <br>
 
 ![eraser](https://github.com/jhj0517/sam2-playground/blob/master/docs/eraser_button.png)
 
