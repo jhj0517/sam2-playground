@@ -19,7 +19,8 @@ def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarr
 
 def invert_masks(masks: List[Dict]) -> List[Dict]:
     """Invert the masks. Used for background masking"""
-    return [{'segmentation': 1 - mask['segmentation'], 'area': mask['area']} for mask in masks]
+    inverted = 1 - masks
+    return inverted
 
 
 def generate_random_color() -> Tuple[int, int, int]:
