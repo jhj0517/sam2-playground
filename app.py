@@ -35,7 +35,7 @@ class App:
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = BOX_PROMPT_MODE
         self.filter_modes = [PIXELIZE_FILTER, COLOR_FILTER]
-        self.default_filter = PIXELIZE_FILTER
+        self.default_filter = COLOR_FILTER
         self.default_color = DEFAULT_COLOR
         self.default_pixel_size = DEFAULT_PIXEL_SIZE
         default_hparam_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
