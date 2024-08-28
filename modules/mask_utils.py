@@ -17,6 +17,11 @@ def decode_to_mask(seg: np.ndarray[np.bool_] | np.ndarray[np.uint8]) -> np.ndarr
         return seg.astype(np.uint8)
 
 
+def invert_masks(masks: List[Dict]) -> List[Dict]:
+    """Invert the masks. Used for background masking"""
+    return [{'segmentation': 1 - mask['segmentation'], 'area': mask['area']} for mask in masks]
+
+
 def generate_random_color() -> Tuple[int, int, int]:
     """Generate random color in RGB format"""
     h = np.random.randint(0, 360)
@@ -47,7 +52,6 @@ def create_mask_layers(
         List of RGBA images
     """
     layer_list = []
-
     sorted_masks = sorted(masks, key=lambda x: x['area'], reverse=True)
 
     for info in sorted_masks:
