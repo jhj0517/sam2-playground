@@ -16,6 +16,7 @@ from modules.model_downloader import (
 from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS, OUTPUT_DIR)
 from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT)
 from modules.mask_utils import (
+    invert_masks,
     save_psd_with_masks,
     create_mask_combined_images,
     create_mask_gallery,
@@ -133,6 +134,7 @@ class SamInference:
     def generate_mask(self,
                       image: np.ndarray,
                       model_type: str,
+                      invert_mask: bool = False,
                       **params) -> List[Dict[str, Any]]:
         """
         Generate masks with Automatic segmentation. Default hyperparameters are in './configs/default_hparams.yaml.'
@@ -140,6 +142,7 @@ class SamInference:
         Args:
             image (np.ndarray): The input image.
             model_type (str): The model type to load.
+            invert_mask (bool): Invert the mask output - used for background masking.
             **params: The hyperparameters for the mask generator.
 
         Returns:
@@ -158,6 +161,11 @@ class SamInference:
         except Exception as e:
             logger.exception(f"Error while auto generating masks : {e}")
             raise RuntimeError(f"Failed to generate masks") from e
+
+        if invert_mask:
+            generated_masks = [{'segmentation': invert_masks(mask['segmentation']),
+                                'area': mask['area']} for mask in generated_masks]
+
         return generated_masks
 
     def predict_image(self,
@@ -166,6 +174,7 @@ class SamInference:
                       box: Optional[np.ndarray] = None,
                       point_coords: Optional[np.ndarray] = None,
                       point_labels: Optional[np.ndarray] = None,
+                      invert_mask: bool = False,
                       **params) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Predict image with prompt data.
@@ -176,6 +185,7 @@ class SamInference:
             box (np.ndarray): The box prompt data.
             point_coords (np.ndarray): The point coordinates prompt data.
             point_labels (np.ndarray): The point labels prompt data.
+            invert_mask (bool): Invert the mask output - used for background masking.
             **params: The hyperparameters for the mask generator.
 
         Returns:
@@ -199,6 +209,10 @@ class SamInference:
         except Exception as e:
             logger.exception(f"Error while predicting image with prompt: {str(e)}")
             raise RuntimeError(f"Failed to predict image with prompt") from e
+
+        if invert_mask:
+            masks = invert_masks(masks)
+
         return masks, scores, logits
 
     def add_prediction_to_frame(self,
@@ -295,6 +309,7 @@ class SamInference:
                               frame_idx: int,
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None,
+                              invert_mask: bool = False
                               ):
         """
         Add filter to the preview image with the prompt data. Specially made for gradio app.
@@ -306,6 +321,7 @@ class SamInference:
             frame_idx (int): The frame index of the video.
             pixel_size (int): The pixel size for the pixelize filter.
             color_hex (str): The color hex code for the solid color filter.
+            invert_mask (bool): Invert the mask output - used for background masking.
 
         Returns:
             np.ndarray: The filtered image output.
@@ -336,6 +352,9 @@ class SamInference:
             box=box
         )
         masks = (logits[0] > 0.0).cpu().numpy()
+        if invert_mask:
+            masks = invert_masks(masks)
+
         generated_masks = self.format_to_auto_result(masks)
 
         if filter_mode == COLOR_FILTER:
@@ -351,7 +370,8 @@ class SamInference:
                               filter_mode: str,
                               frame_idx: int,
                               pixel_size: Optional[int] = None,
-                              color_hex: Optional[str] = None
+                              color_hex: Optional[str] = None,
+                              invert_mask: bool = False
                               ):
         """
         Create a whole filtered video with video_inference_state. Currently only one frame tracking is supported.
@@ -363,6 +383,7 @@ class SamInference:
             frame_idx (int): The frame index of the video.
             pixel_size (int): The pixel size for the pixelize filter.
             color_hex (str): The color hex code for the solid color filter.
+            invert_mask (bool): Invert the mask output - used for background masking.
 
         Returns:
             str: The output video path.
@@ -394,12 +415,14 @@ class SamInference:
             inference_state=self.video_inference_state,
             points=point_coords,
             labels=point_labels,
-            box=box
+            box=box,
         )
 
         video_segments = self.propagate_in_video(inference_state=self.video_inference_state)
         for frame_index, info in video_segments.items():
             orig_image, masks = info["image"], info["mask"]
+            if invert_mask:
+                masks = invert_masks(masks)
             masks = self.format_to_auto_result(masks)
 
             if filter_mode == COLOR_FILTER:
@@ -427,6 +450,7 @@ class SamInference:
                      image_prompt_input_data: Dict,
                      input_mode: str,
                      model_type: str,
+                     invert_mask: bool = False,
                      *params):
         """
         Divide the layer with the given prompt data and save psd file.
@@ -436,6 +460,7 @@ class SamInference:
             image_prompt_input_data (Dict): The image prompt data.
             input_mode (str): The input mode for the image prompt data. ["Automatic", "Box Prompt"]
             model_type (str): The model type to load.
+            invert_mask (bool): Invert the mask output.
             *params: The hyperparameters for the mask generator.
 
         Returns:
@@ -467,6 +492,7 @@ class SamInference:
             generated_masks = self.generate_mask(
                 image=image,
                 model_type=model_type,
+                invert_mask=invert_mask,
                 **hparams
             )
 
@@ -485,7 +511,8 @@ class SamInference:
                 box=box,
                 point_coords=point_coords,
                 point_labels=point_labels,
-                multimask_output=hparams["multimask_output"]
+                multimask_output=hparams["multimask_output"],
+                invert_mask=invert_mask
             )
             generated_masks = self.format_to_auto_result(predicted_masks)
 
