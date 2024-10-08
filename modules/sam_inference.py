@@ -324,13 +324,18 @@ class SamInference:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise f"Error while adding filter to preview"
 
-        if not image_prompt_input_data["points"]:
+        image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
+        if not prompt:
             error_message = ("No prompt data provided. If this is an incorrect flag, "
                              "Please press the eraser button (on the image prompter) and add your prompts again.")
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
 
-        image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
+        if not image:
+            error_message = "No image data provided."
+            logger.error(error_message)
+            raise gr.Error(error_message, duration=20)
+
         image = np.array(image.convert("RGB"))
 
         point_labels, point_coords, box = self.handle_prompt_data(prompt)
@@ -372,7 +377,7 @@ class SamInference:
         This needs FFmpeg to run. Returns two output path because of the gradio app.
 
         Args:
-            image_prompt_input_data (Dict): The image prompt data.
+            image_prompt_input_data (Dict): The image prompt data with "image" and "points" keys.
             filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize"]
             frame_idx (int): The frame index of the video.
             pixel_size (int): The pixel size for the pixelize filter.
@@ -388,20 +393,20 @@ class SamInference:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise RuntimeError("Error while adding filter to preview")
 
-        if not image_prompt_input_data["points"]:
+        prompt = image_prompt_input_data["points"]
+        if not prompt:
             error_message = ("No prompt data provided. If this is an incorrect flag, "
                              "Please press the eraser button (on the image prompter) and add your prompts again.")
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
+
+        point_labels, point_coords, box = self.handle_prompt_data(prompt)
+        obj_id = frame_idx
+
         output_dir = os.path.join(self.output_dir, "filter")
 
         clean_files_with_extension(TEMP_OUT_DIR, IMAGE_FILE_EXT)
         self.video_predictor.reset_state(self.video_inference_state)
-
-        prompt_frame_image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
-
-        point_labels, point_coords, box = self.handle_prompt_data(prompt)
-        obj_id = frame_idx
 
         idx, scores, logits = self.add_prediction_to_frame(
             frame_idx=frame_idx,
@@ -536,7 +541,7 @@ class SamInference:
         Handle data from ImageInputPrompter.
 
         Args:
-            prompt_data (Dict): A dictionary containing the 'prompt' key with a list of prompts.
+            prompt_data (Dict): A dictionary containing the 'points' key with a list of prompts.
 
         Returns:
             point_labels (List): list of points labels.
