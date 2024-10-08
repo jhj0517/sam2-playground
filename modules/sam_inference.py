@@ -256,7 +256,7 @@ class SamInference:
         return out_frame_idx, out_obj_ids, out_mask_logits
 
     def propagate_in_video(self,
-                           inference_state: Optional[Dict] = None,):
+                           inference_state: Optional[Dict] = None,) -> Dict:
         """
         Propagate in the video with the tracked predictions for each frame. Currently only supports
         single frame tracking.
