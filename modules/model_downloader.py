@@ -3,12 +3,16 @@ from typing import Optional
 
 from modules.paths import *
 
-DEFAULT_MODEL_TYPE = "sam2_hiera_large"
+DEFAULT_MODEL_TYPE = "sam2.1_hiera_large"
 AVAILABLE_MODELS = {
     "sam2_hiera_tiny": ["sam2_hiera_tiny.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt"],
     "sam2_hiera_small": ["sam2_hiera_small.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt"],
     "sam2_hiera_base_plus": ["sam2_hiera_base_plus.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt"],
     "sam2_hiera_large": ["sam2_hiera_large.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt"],
+    "sam2.1_hiera_tiny": ["sam2.1_hiera_tiny.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_tiny.pt"],
+    "sam2.1_hiera_small": ["sam2.1_hiera_small.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_small.pt"],
+    "sam2.1_hiera_base_plus": ["sam2.1_hiera_base_plus.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_base_plus.pt"],
+    "sam2.1_hiera_large": ["sam2.1_hiera_large.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt"],
 }
 
 
