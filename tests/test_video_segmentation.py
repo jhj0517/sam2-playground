@@ -11,11 +11,7 @@ from typing import Dict
 @pytest.mark.parametrize(
     "model_name,video_path,points,labels,box",
     [
-        TEST_MODEL,
-        TEST_VIDEO_PATH,
-        TEST_POINTS,
-        TEST_LABELS,
-        TEST_BOX
+        (TEST_MODEL, TEST_VIDEO_PATH, TEST_POINTS, TEST_LABELS, TEST_BOX)
     ]
 )
 def test_video_segmentation(
