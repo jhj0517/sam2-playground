@@ -14,6 +14,8 @@ TEST_POINTS = np.array([[850., 424.],
                         [810., 510.]])
 TEST_LABELS = np.array([1., 1.])
 TEST_BOX = np.array([[662., 197., 1056., 711.]])
+TEST_GRADIO_PROMPT_BOX = [[653.0, 163.0, 2.0, 1132.0, 702.0, 3.0]]
+TEST_GRADIO_PROMPT_POINTS = [[817.0, 366.0, 1.0, 0.0, 0.0, 4.0], [864.0, 533.0, 1.0, 0.0, 0.0, 4.0]]
 
 
 def download_test_sam_model(model_name: str):
@@ -28,9 +30,9 @@ def download_test_sam_model(model_name: str):
 def download_test_files():
     if not os.path.exists(TEST_IMAGE_PATH):
         download_file(TEST_IMAGE_URL, TEST_IMAGE_PATH)
-        trim_video(TEST_VIDEO_PATH, seconds=1)
     if not os.path.exists(TEST_VIDEO_PATH):
         download_file(TEST_VIDEO_URL, TEST_VIDEO_PATH)
+        trim_video(TEST_VIDEO_PATH, seconds=1)
 
 
 def trim_video(video_path, seconds=1):
@@ -43,7 +45,7 @@ def trim_video(video_path, seconds=1):
     try:
         subprocess.run(command, check=True)
         os.replace(temp_output_path, video_path)
-        print(f"Trimmed video to 3 seconds and saved to {video_path}")
+        print(f"Trimmed video to {seconds} seconds and saved to {video_path}")
     except subprocess.CalledProcessError as e:
         print(f"Error trimming video: {e}")
 
