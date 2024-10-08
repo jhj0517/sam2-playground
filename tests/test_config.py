@@ -1,6 +1,7 @@
 import os.path
 import requests
 import numpy as np
+import subprocess
 
 from modules.paths import *
 
@@ -26,8 +27,24 @@ def download_test_sam_model(model_name: str):
 def download_test_files():
     if not os.path.exists(TEST_IMAGE_PATH):
         download_file(TEST_IMAGE_URL, TEST_IMAGE_PATH)
+        trim_video(TEST_VIDEO_PATH, seconds=1)
     if not os.path.exists(TEST_VIDEO_PATH):
         download_file(TEST_VIDEO_URL, TEST_VIDEO_PATH)
+
+
+def trim_video(video_path, seconds=1):
+    temp_output_path = video_path + ".temp.mp4"
+
+    command = [
+        "ffmpeg", "-i", video_path, "-t", f"{seconds}", "-c", "copy", temp_output_path
+    ]
+
+    try:
+        subprocess.run(command, check=True)
+        os.replace(temp_output_path, video_path)
+        print(f"Trimmed video to 3 seconds and saved to {video_path}")
+    except subprocess.CalledProcessError as e:
+        print(f"Error trimming video: {e}")
 
 
 def download_file(url, path):
