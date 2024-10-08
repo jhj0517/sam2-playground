@@ -8,6 +8,10 @@ from modules.constants import *
 from modules.sam_inference import SamInference
 
 
+@pytest.mark.skipif(
+    not is_cuda_available(),
+    reason="Skipping because this test only works in GPU"
+)
 @pytest.mark.parametrize(
     "model_name,video_path,points,labels,box",
     [
@@ -24,6 +28,7 @@ def test_video_segmentation(
     download_test_files()
 
     inferencer = SamInference()
+    print("Device:", inferencer.device)
     inferencer.init_video_inference_state(
         vid_input=video_path,
         model_type=model_name,
@@ -47,6 +52,10 @@ def test_video_segmentation(
     assert video_segments and isinstance(video_segments, Dict)
 
 
+@pytest.mark.skipif(
+    not is_cuda_available(),
+    reason="Skipping because this test only works in GPU"
+)
 @pytest.mark.parametrize(
     "model_name,video_path,gradio_prompt",
     [
@@ -61,6 +70,7 @@ def test_filtered_video_creation_pipeline(
     download_test_files()
 
     inferencer = SamInference()
+    print("Device:", inferencer.device)
     inferencer.init_video_inference_state(
         vid_input=video_path,
         model_type=model_name,

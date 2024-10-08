@@ -9,6 +9,10 @@ from modules.constants import *
 from modules.sam_inference import SamInference
 
 
+@pytest.mark.skipif(
+    not is_cuda_available(),
+    reason="Skipping because this test only works in GPU"
+)
 @pytest.mark.parametrize(
     "model_name,image_path,points,labels,box,multimask_output",
     [
@@ -26,6 +30,8 @@ def test_image_segmentation(
     download_test_files()
 
     inferencer = SamInference()
+    print("Device:", inferencer.device)
+
     image = load_image(image_path)
 
     hparams = {
