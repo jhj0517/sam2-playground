@@ -1,11 +1,11 @@
+import pytest
+from typing import Dict
+
 from test_config import *
 import numpy as np
 from modules.paths import *
 from modules.constants import *
 from modules.sam_inference import SamInference
-
-import pytest
-from typing import Dict
 
 
 @pytest.mark.parametrize(
