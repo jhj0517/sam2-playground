@@ -87,7 +87,7 @@ class SamInference:
         try:
             self.video_predictor = None
             self.model = build_sam2(
-                config_file=config_name,
+                config_file=config_path,
                 ckpt_path=model_path,
                 device=self.device
             )
