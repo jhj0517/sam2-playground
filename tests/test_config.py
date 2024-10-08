@@ -1,5 +1,6 @@
 import os.path
 import requests
+import numpy as np
 
 from modules.paths import *
 
@@ -8,6 +9,9 @@ TEST_VIDEO_URL = "http://commondatastorage.googleapis.com/gtv-videos-bucket/samp
 TEST_IMAGE_URL = "https://raw.githubusercontent.com/test-images/png/refs/heads/main/202105/cs-blue-00f.png"
 TEST_VIDEO_PATH = os.path.join(WEBUI_DIR, "tests", "test_video.mp4")
 TEST_IMAGE_PATH = os.path.join(WEBUI_DIR, "tests", "test_image.png")
+TEST_POINTS = np.array([[100, 150], [200, 250], [300, 350]])
+TEST_LABELS = np.array([1, 0, 1])
+TEST_BOX = np.array([50, 100, 400, 500])
 
 
 def download_test_sam_model(model_name: str):
