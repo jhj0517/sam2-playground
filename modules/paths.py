@@ -3,7 +3,18 @@ import os
 WEBUI_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MODELS_DIR = os.path.join(WEBUI_DIR, "models")
 SAM2_CONFIGS_DIR = os.path.join(WEBUI_DIR, "configs")
+SAM2_CONFIGS_PACKAGE_DIR = os.path.join("configs")
 MODEL_CONFIGS = {
+    "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2", "sam2_hiera_t.yaml"),
+    "sam2_hiera_small": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2", "sam2_hiera_s.yaml"),
+    "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2", "sam2_hiera_b+.yaml"),
+    "sam2_hiera_large": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2", "sam2_hiera_l.yaml"),
+    "sam2.1_hiera_tiny": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2.1", "sam2.1_hiera_t.yaml"),
+    "sam2.1_hiera_small": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2.1", "sam2.1_hiera_s.yaml"),
+    "sam2.1_hiera_base_plus": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2.1", "sam2.1_hiera_b+.yaml"),
+    "sam2.1_hiera_large": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2.1", "sam2.1_hiera_l.yaml"),
+}
+MODEL_CONFIGS_WEBUI_PATH = {
     "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_t.yaml"),
     "sam2_hiera_small": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_s.yaml"),
     "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_b+.yaml"),
