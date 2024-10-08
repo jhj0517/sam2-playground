@@ -2,6 +2,7 @@ import os.path
 import requests
 import numpy as np
 import subprocess
+import torch
 
 from modules.paths import *
 
@@ -61,3 +62,6 @@ def download_file(url, path):
     else:
         print(f"Failed to download {url}. Status code: {response.status_code}")
 
+
+def is_cuda_available():
+    return torch.cuda.is_available()
