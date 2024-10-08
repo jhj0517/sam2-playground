@@ -8,6 +8,10 @@ MODEL_CONFIGS = {
     "sam2_hiera_small": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_s.yaml"),
     "sam2_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_b+.yaml"),
     "sam2_hiera_large": os.path.join(SAM2_CONFIGS_DIR, "sam2_hiera_l.yaml"),
+    "sam2.1_hiera_tiny": os.path.join(SAM2_CONFIGS_DIR, "sam2.1_hiera_t.yaml"),
+    "sam2.1_hiera_small": os.path.join(SAM2_CONFIGS_DIR, "sam2.1_hiera_l.yaml"),
+    "sam2.1_hiera_base_plus": os.path.join(SAM2_CONFIGS_DIR, "sam2.1_hiera_b+.yaml"),
+    "sam2.1_hiera_large": os.path.join(SAM2_CONFIGS_DIR, "sam2.1_hiera_l.yaml"),
 }
 OUTPUT_DIR = os.path.join(WEBUI_DIR, "outputs")
 OUTPUT_PSD_DIR = os.path.join(OUTPUT_DIR, "psd")
