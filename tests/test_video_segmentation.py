@@ -46,3 +46,35 @@ def test_video_segmentation(
 
     assert video_segments and isinstance(video_segments, Dict)
 
+
+@pytest.mark.parametrize(
+    "model_name,video_path,gradio_prompt",
+    [
+        (TEST_MODEL, TEST_VIDEO_PATH, TEST_GRADIO_PROMPT_BOX)
+    ]
+)
+def test_filtered_video_creation_pipeline(
+    model_name: str,
+    video_path: str,
+    gradio_prompt: np.ndarray,
+):
+    download_test_files()
+
+    inferencer = SamInference()
+    inferencer.init_video_inference_state(
+        vid_input=video_path,
+        model_type=model_name,
+    )
+    prompt_data = {
+        "points": gradio_prompt
+    }
+
+    out_path, out_path = inferencer.create_filtered_video(
+        image_prompt_input_data=prompt_data,
+        filter_mode=COLOR_FILTER,
+        frame_idx=0,
+        color_hex=DEFAULT_COLOR,
+        invert_mask=True
+    )
+
+    assert os.path.exists(out_path)
