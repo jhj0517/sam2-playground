@@ -2,6 +2,8 @@
 outputs/
 models/
 venv/
+.pytest_cache/
+__pycache__/
 *.png
 !docs/example_image_segmentation.png
 !docs/example_psd_file.png
