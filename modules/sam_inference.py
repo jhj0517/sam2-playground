@@ -13,7 +13,7 @@ from modules.model_downloader import (
     is_sam_exist,
     download_sam_model_url
 )
-from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS, OUTPUT_DIR)
+from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS_WEBUI_PATH, OUTPUT_DIR)
 from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT)
 from modules.mask_utils import (
     invert_masks,
@@ -62,7 +62,7 @@ class SamInference:
         if model_type is None:
             model_type = DEFAULT_MODEL_TYPE
 
-        config_path = MODEL_CONFIGS[model_type]
+        config_path = MODEL_CONFIGS_WEBUI_PATH[model_type]
 
         filename, url = AVAILABLE_MODELS[model_type]
         model_path = os.path.join(self.model_dir, filename)
