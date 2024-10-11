@@ -3,7 +3,7 @@ from typing import Optional
 
 from modules.paths import *
 
-DEFAULT_MODEL_TYPE = "sam2_hiera_large"
+DEFAULT_MODEL_TYPE = "sam2.1_hiera_large"
 AVAILABLE_MODELS = {
     "sam2_hiera_tiny": ["sam2_hiera_tiny.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt"],
     "sam2_hiera_small": ["sam2_hiera_small.pt", "https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt"],
