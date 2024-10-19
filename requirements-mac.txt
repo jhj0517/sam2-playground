@@ -2,6 +2,7 @@ torch
 torchvision
 pytest
 gradio
+git+https://github.com/jhj0517/gradio-i18n.git@fix/encoding-error
 git+https://github.com/jhj0517/gradio-image-prompter.git
 opencv-python
 pycocotools
