@@ -9,6 +9,7 @@ torch
 torchvision
 pytest
 gradio
+gradio-i18n
 git+https://github.com/jhj0517/gradio-image-prompter.git
 opencv-python
 pycocotools
