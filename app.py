@@ -1,6 +1,7 @@
 import argparse
 import gradio as gr
 from gradio_image_prompter import ImagePrompter
+from gradio_image_prompter.image_prompter import PromptValue
 from gradio_i18n import Translate, gettext as _
 from typing import List, Dict, Optional, Union
 import os
@@ -93,8 +94,9 @@ class App:
         self.sam_inf.init_video_inference_state(vid_input=vid_input, model_type=model_type)
         frames = get_frames_from_dir(vid_dir=TEMP_DIR)
         initial_frame, max_frame_index = frames[0], (len(frames)-1)
+        i_value = PromptValue(image=initial_frame, points=[])
         return [
-            ImagePrompter(label=_("Prompt image with Box & Point"), value=initial_frame),
+            ImagePrompter(label=_("Prompt image with Box & Point"), value=i_value),
             gr.Slider(label=_("Frame Index"), value=0, interactive=True, step=1, minimum=0, maximum=max_frame_index)
         ]
 
@@ -103,7 +105,8 @@ class App:
         temp_dir = TEMP_DIR
         frames = get_frames_from_dir(vid_dir=temp_dir)
         selected_frame = frames[frame_idx]
-        return ImagePrompter(label=_("Prompt image with Box & Point"), value=selected_frame)
+        n_value = PromptValue(image=selected_frame, points=[])
+        return ImagePrompter(label=_("Prompt image with Box & Point"), value=n_value)
 
     @staticmethod
     def on_prompt_change(prompt: Dict):
@@ -161,7 +164,9 @@ class App:
                                          outputs=[vid_frame_prompter, sld_frame_selector])
                         sld_frame_selector.change(fn=self.on_frame_change,
                                                   inputs=[sld_frame_selector],
-                                                  outputs=[vid_frame_prompter],)
+                                                  outputs=[vid_frame_prompter],
+                                                  cancels=["click_event"],
+                                                  queue=True)
                         dd_filter_mode.change(fn=self.on_filter_mode_change,
                                               inputs=[dd_filter_mode],
                                               outputs=[cp_color_picker,
