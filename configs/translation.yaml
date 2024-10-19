@@ -31,7 +31,7 @@ ko: # Korean
   Video Segmentation: 영상 분할
   Layer Divider: 레이어 분리기
   Upload Input Video: 영상을 업로드 하세요
-  Prompt image with Box & Point: 박스 & 포인트 프롬프트
+  Prompt image with Box & Point: 프롬프트 (박스 & 포인트)
   Preview: 프리뷰
   Model: 모델
   Filter Modes: 필터 모드
