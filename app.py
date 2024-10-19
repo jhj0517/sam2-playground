@@ -88,8 +88,8 @@ class App:
         frames = get_frames_from_dir(vid_dir=TEMP_DIR)
         initial_frame, max_frame_index = frames[0], (len(frames)-1)
         return [
-            ImagePrompter(label="Prompt image with Box & Point", value=initial_frame),
-            gr.Slider(label="Frame Index", value=0, interactive=True, step=1, minimum=0, maximum=max_frame_index)
+            ImagePrompter(label=_("Prompt image with Box & Point"), value=initial_frame),
+            gr.Slider(label=_("Frame Index"), value=0, interactive=True, step=1, minimum=0, maximum=max_frame_index)
         ]
 
     @staticmethod
@@ -97,12 +97,12 @@ class App:
         temp_dir = TEMP_DIR
         frames = get_frames_from_dir(vid_dir=temp_dir)
         selected_frame = frames[frame_idx]
-        return ImagePrompter(label=f"Prompt image with Box & Point", value=selected_frame)
+        return ImagePrompter(label=_("Prompt image with Box & Point"), value=selected_frame)
 
     @staticmethod
     def on_prompt_change(prompt: Dict):
         image, points = prompt["image"], prompt["points"]
-        return gr.Image(label="Preview", value=image)
+        return gr.Image(label=_("Preview"), value=image)
 
     def launch(self):
         _mask_hparams = self.default_hparams["mask_hparams"]
@@ -114,38 +114,38 @@ class App:
                 with gr.Tabs():
                     with gr.TabItem(_("Video Segmentation")):
                         with gr.Column():
-                            file_vid_input = gr.File(label="Upload Input Video", file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
+                            file_vid_input = gr.File(label=_("Upload Input Video"), file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
                             with gr.Row(equal_height=True):
                                 with gr.Column(scale=9):
                                     with gr.Row():
-                                        vid_frame_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
+                                        vid_frame_prompter = ImagePrompter(label=_("Prompt image with Box & Point"), type='pil',
                                                                            interactive=True, scale=5)
-                                        img_preview = gr.Image(label="Preview", interactive=False, scale=5)
+                                        img_preview = gr.Image(label=_("Preview"), interactive=False, scale=5)
 
-                                    sld_frame_selector = gr.Slider(label="Frame Index", interactive=False)
+                                    sld_frame_selector = gr.Slider(label=_("Frame Index"), interactive=False)
 
                                 with gr.Column(scale=1):
-                                    dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
+                                    dd_models = gr.Dropdown(label=_("Model"), value=DEFAULT_MODEL_TYPE,
                                                             choices=self.sam_inf.available_models)
-                                    dd_filter_mode = gr.Dropdown(label="Filter Modes", interactive=True,
+                                    dd_filter_mode = gr.Dropdown(label=_("Filter Modes"), interactive=True,
                                                                  value=self.default_filter,
                                                                  choices=self.filter_modes)
-                                    cp_color_picker = gr.ColorPicker(label="Solid Color", interactive=True,
+                                    cp_color_picker = gr.ColorPicker(label=_("Solid Color"), interactive=True,
                                                                      visible=self.default_filter == COLOR_FILTER,
                                                                      value=self.default_color)
-                                    nb_pixel_size = gr.Number(label="Pixel Size", interactive=True, minimum=1,
+                                    nb_pixel_size = gr.Number(label=_("Pixel Size"), interactive=True, minimum=1,
                                                               visible=self.default_filter == PIXELIZE_FILTER,
                                                               value=self.default_pixel_size)
-                                    cb_invert_mask = gr.Checkbox(label="invert mask", value=_mask_hparams["invert_mask"])
-                                    btn_generate_preview = gr.Button("GENERATE PREVIEW")
+                                    cb_invert_mask = gr.Checkbox(label=_("invert mask"), value=_mask_hparams["invert_mask"])
+                                    btn_generate_preview = gr.Button(_("GENERATE PREVIEW"))
 
                         with gr.Row():
-                            btn_generate = gr.Button("GENERATE", variant="primary")
+                            btn_generate = gr.Button(_("GENERATE VIDEO"), variant="primary")
                         with gr.Row():
-                            vid_output = gr.Video(label="Output Video", interactive=False)
+                            vid_output = gr.Video(label=_("Output Video"), interactive=False)
                             with gr.Column():
-                                output_file = gr.File(label="Downloadable Output File", scale=9)
-                                btn_open_folder = gr.Button("📁\nOpen Output folder", scale=1)
+                                output_file = gr.File(label=_("Downloadable Output File"), scale=9)
+                                btn_open_folder = gr.Button(_("📁 Open Output folder"), scale=1)
 
                         file_vid_input.change(fn=self.on_video_model_change,
                                               inputs=[dd_models, file_vid_input],
@@ -173,32 +173,32 @@ class App:
                                               inputs=None,
                                               outputs=None)
 
-                    with gr.TabItem("Layer Divider"):
+                    with gr.TabItem(_("Layer Divider")):
                         with gr.Row():
                             with gr.Column(scale=5):
-                                img_input = gr.Image(label="Input image here", visible=self.default_mode == AUTOMATIC_MODE)
-                                img_input_prompter = ImagePrompter(label="Prompt image with Box & Point", type='pil',
+                                img_input = gr.Image(label=_("Input image here"), visible=self.default_mode == AUTOMATIC_MODE)
+                                img_input_prompter = ImagePrompter(label=_("Prompt image with Box & Point"), type='pil',
                                                                    visible=self.default_mode == BOX_PROMPT_MODE)
 
                             with gr.Column(scale=5):
-                                dd_input_modes = gr.Dropdown(label="Image Input Mode", value=self.default_mode,
+                                dd_input_modes = gr.Dropdown(label=_("Image Input Mode"), value=self.default_mode,
                                                              choices=self.image_modes)
-                                dd_models = gr.Dropdown(label="Model", value=DEFAULT_MODEL_TYPE,
+                                dd_models = gr.Dropdown(label=_("Model"), value=DEFAULT_MODEL_TYPE,
                                                         choices=self.sam_inf.available_models)
-                                cb_invert_mask = gr.Checkbox(label="invert mask", value=_mask_hparams["invert_mask"])
+                                cb_invert_mask = gr.Checkbox(label=_("invert mask"), value=_mask_hparams["invert_mask"])
 
-                                with gr.Accordion("Mask Parameters", open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
+                                with gr.Accordion(_("Mask Parameters"), open=False, visible=self.default_mode == AUTOMATIC_MODE) as acc_mask_hparams:
                                     mask_hparams_component = self.mask_generation_parameters(_mask_hparams)
 
-                                cb_multimask_output = gr.Checkbox(label="multimask_output", value=_mask_hparams["multimask_output"])
+                                cb_multimask_output = gr.Checkbox(label=_("multimask_output"), value=_mask_hparams["multimask_output"])
 
                         with gr.Row():
-                            btn_generate = gr.Button("GENERATE", variant="primary")
+                            btn_generate = gr.Button(_("GENERATE"), variant="primary")
                         with gr.Row():
-                            gallery_output = gr.Gallery(label="Output images will be shown here")
+                            gallery_output = gr.Gallery(label=_("Output images will be shown here"))
                             with gr.Column():
-                                output_file = gr.File(label="Generated psd file", scale=9)
-                                btn_open_folder = gr.Button("📁\nOpen PSD folder", scale=1)
+                                output_file = gr.File(label=_("Generated psd file"), scale=9)
+                                btn_open_folder = gr.Button(_("📁 Open PSD folder"), scale=1)
 
                         input_params = [img_input, img_input_prompter, dd_input_modes, dd_models, cb_invert_mask]
                         mask_hparams = mask_hparams_component + [cb_multimask_output]
