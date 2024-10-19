@@ -3,6 +3,7 @@ import os
 WEBUI_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MODELS_DIR = os.path.join(WEBUI_DIR, "models")
 SAM2_CONFIGS_DIR = os.path.join(WEBUI_DIR, "configs")
+I18N_YAML = os.path.join(SAM2_CONFIGS_DIR, "translation.yaml")
 SAM2_CONFIGS_PACKAGE_DIR = os.path.join("configs")
 MODEL_CONFIGS = {
     "sam2_hiera_tiny": os.path.join(SAM2_CONFIGS_PACKAGE_DIR, "sam2", "sam2_hiera_t.yaml"),
