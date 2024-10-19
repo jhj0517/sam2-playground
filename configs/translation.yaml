@@ -37,7 +37,7 @@ ko: # Korean
   Filter Modes: 필터 모드
   Solid Color: 단색
   Pixelize: 모자이크
-  Pixel Size: 모자이크 크기
+  Pixel Size: 모자이크 픽셀 크기
   invert mask: 분할 영역 반전
   GENERATE PREVIEW: 프리뷰 생성
   GENERATE VIDEO: 영상 생성
