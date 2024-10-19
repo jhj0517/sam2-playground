@@ -1,4 +1,4 @@
-en:
+en: # English
   Language: Language
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -9,6 +9,7 @@ en:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
@@ -25,10 +26,10 @@ en:
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
 
-ko:
+ko: # Korean
   Language: 언어
   Video Segmentation: 영상 분할
-  Layer Divider: 레이어 분리
+  Layer Divider: 레이어 분리기
   Upload Input Video: 영상을 업로드 하세요
   Prompt image with Box & Point: 박스 & 포인트 프롬프트
   Preview: 프리뷰
@@ -36,6 +37,7 @@ ko:
   Filter Modes: 필터 모드
   Solid Color: 단색
   Pixelize: 모자이크
+  Pixel Size: 모자이크 크기
   invert mask: 분할 영역 반전
   GENERATE PREVIEW: 프리뷰 생성
   GENERATE VIDEO: 영상 생성
@@ -52,7 +54,7 @@ ko:
   Generated psd file: 생성된 psd 파일
   📁 Open PSD folder: 📁 PSD 출력 폴더 열기
 
-ja:
+ja: # Japanese
   Language: 言語
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -63,6 +65,7 @@ ja:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
@@ -79,7 +82,7 @@ ja:
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
 
-es:
+es: # Spanish
   Language: Idioma
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -90,6 +93,7 @@ es:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
@@ -106,7 +110,7 @@ es:
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
 
-fr:
+fr: # French
   Language: Langue
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -117,6 +121,7 @@ fr:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
@@ -133,7 +138,7 @@ fr:
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
 
-de:
+de: # German
   Language: Sprache
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -144,6 +149,7 @@ de:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
@@ -160,8 +166,7 @@ de:
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
 
-
-zh:
+zh: # Chinese
   Language: 语言
   Video Segmentation: Video Segmentation
   Layer Divider: Layer Divider
@@ -172,6 +177,7 @@ zh:
   Filter Modes: Filter Modes
   Solid Color: Solid Color
   Pixelize: Pixelize
+  Pixel Size: Pixel Size
   invert mask: invert mask
   GENERATE PREVIEW: GENERATE PREVIEW
   GENERATE VIDEO: GENERATE VIDEO
