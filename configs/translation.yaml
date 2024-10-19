@@ -44,7 +44,7 @@ ko: # Korean
   Output Video: 영상 결과물
   Downloadable Output File: 영상 파일
   📁 Open Output folder: 📁 출력 폴더 열기
-  Frame Index: 영상 프레임
+  Frame Index: 동영상 프레임 수
   Automatic Segmentation: 자동 분할
   Image Input Mode: 프롬프트 모드
   Box Prompt: 박스 프롬프트
