@@ -1,27 +1,182 @@
 en:
   Language: Language
   Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
 
-zh:
-  Language: 语言
-  Video Segmentation: Video Segmentation
+ko:
+  Language: 언어
+  Video Segmentation: 영상 분할
+  Layer Divider: 레이어 분리
+  Upload Input Video: 영상을 업로드 하세요
+  Prompt image with Box & Point: 박스 & 포인트 프롬프트
+  Preview: 프리뷰
+  Model: 모델
+  Filter Modes: 필터 모드
+  Solid Color: 단색
+  invert mask: 분할 영역 반전
+  GENERATE PREVIEW: 프리뷰 생성
+  GENERATE VIDEO: 영상 생성
+  Output Video: 영상 결과물
+  Downloadable Output File: 영상 파일
+  📁 Open Output folder: 📁 출력 폴더 열기
+  Frame Index: 영상 프레임
+  Automatic Segmentation: 자동 분할
+  Image Input Mode: 프롬프트 모드
+  Box Prompt: 박스 프롬프트
+  Mast Parameters: 마스크 파라미터
+  multimask_output: multimask_output
+  Output images will be shown here: 분할된 이미지들
+  Generated psd file: 생성된 psd 파일
+  📁 Open PSD folder: 📁 PSD 출력 폴더 열기
 
 ja:
   Language: 言語
   Video Segmentation: Video Segmentation
-
-ko:
-  Language: 언어
-  Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
 
 es:
   Language: Idioma
   Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
 
 fr:
   Language: Langue
   Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
 
 de:
   Language: Sprache
   Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
+
+
+zh:
+  Language: 语言
+  Video Segmentation: Video Segmentation
+  Layer Divider: Layer Divider
+  Upload Input Video: Upload Input Video
+  Prompt image with Box & Point: Prompt image with Box & Point
+  Preview: Preview
+  Model: Model
+  Filter Modes: Filter Modes
+  Solid Color: Solid Color
+  invert mask: invert mask
+  GENERATE PREVIEW: GENERATE PREVIEW
+  GENERATE VIDEO: GENERATE VIDEO
+  Output Video: Output Video
+  Downloadable Output File: Downloadable Output File
+  📁 Open Output folder: 📁 Open Output folder
+  Frame Index: Frame Index
+  Automatic Segmentation: Automatic Segmentation
+  Image Input Mode: Image Input Mode
+  Box Prompt: Box Prompt
+  Mast Parameters: Mask Parameters
+  multimask_output: multimask_output
+  Output images will be shown here: Output images will be shown here
+  Generated psd file: Generated psd file
+  📁 Open PSD folder: 📁 Open PSD folder
