@@ -29,7 +29,7 @@ class App:
             theme=self.args.theme,
             css=CSS
         )
-        self.i18n = Translate(I18N_YAML, placeholder_langs=["en", "ko"])
+        self.i18n = Translate(I18N_YAML)
         self.sam_inf = SamInference(
             model_dir=self.args.model_dir,
             output_dir=self.args.output_dir
