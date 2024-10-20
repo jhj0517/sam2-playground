@@ -164,9 +164,7 @@ class App:
                                          outputs=[vid_frame_prompter, sld_frame_selector])
                         sld_frame_selector.change(fn=self.on_frame_change,
                                                   inputs=[sld_frame_selector],
-                                                  outputs=[vid_frame_prompter],
-                                                  cancels=["click_event"],
-                                                  queue=True)
+                                                  outputs=[vid_frame_prompter])
                         dd_filter_mode.change(fn=self.on_filter_mode_change,
                                               inputs=[dd_filter_mode],
                                               outputs=[cp_color_picker,
