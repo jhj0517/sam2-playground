@@ -30,25 +30,33 @@ def get_image_files(image_dir: str):
 
 def save_image(image: Union[np.ndarray, str],
                output_path: Optional[str] = None,
-               output_dir: Optional[str] = None):
+               output_dir: Optional[str] = None,
+               use_alpha: Optional[bool] = None):
     """Save the image to the output path or output directory. If output_dir is provided,
     the image will be saved as a numbered image file name in the directory."""
 
     if output_dir is None and output_path is None:
         raise ValueError("Either output_path or output_dir should be provided")
 
+    if use_alpha:
+        img_format = "png"
+    else:
+        img_format = "jpg"
+
     if isinstance(image, str):
         image = Image.open(image)
     elif isinstance(image, np.ndarray):
+        if use_alpha:
+            image = image.astype(np.uint8)
         image = Image.fromarray(image)
 
     if output_path is not None:
-        image.save(output_path, "JPEG")
+        image.save(output_path, img_format)
         return output_path
 
     os.makedirs(output_dir, exist_ok=True)
     num_images = len(get_image_files(output_dir))
-    output_path = os.path.join(output_dir, f"{num_images:05d}.jpg")
+    output_path = os.path.join(output_dir, f"{num_images:05d}.{img_format}")
     image.save(output_path)
 
     return output_path
