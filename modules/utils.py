@@ -31,17 +31,16 @@ def get_image_files(image_dir: str):
 def save_image(image: Union[np.ndarray, str],
                output_path: Optional[str] = None,
                output_dir: Optional[str] = None,
-               use_alpha: Optional[bool] = None):
+               use_alpha: Optional[bool] = None,
+               img_format: Optional[str] = None):
     """Save the image to the output path or output directory. If output_dir is provided,
     the image will be saved as a numbered image file name in the directory."""
 
     if output_dir is None and output_path is None:
         raise ValueError("Either output_path or output_dir should be provided")
 
-    if use_alpha:
+    if img_format is None:
         img_format = "png"
-    else:
-        img_format = "jpg"
 
     if isinstance(image, str):
         image = Image.open(image)
