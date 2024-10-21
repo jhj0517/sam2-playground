@@ -142,6 +142,8 @@ class App:
                                     cp_color_picker = gr.ColorPicker(label=_("Solid Color"), interactive=True,
                                                                      visible=self.default_filter == COLOR_FILTER,
                                                                      value=self.default_color)
+                                    cb_alpha = gr.Checkbox(label=_("투명"), interactive=True,
+                                                              value=False)
                                     nb_pixel_size = gr.Number(label=_("Pixel Size"), interactive=True, minimum=1,
                                                               visible=self.default_filter == PIXELIZE_FILTER,
                                                               value=self.default_pixel_size)
@@ -171,7 +173,7 @@ class App:
                                                        nb_pixel_size])
 
                         preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size,
-                                          cp_color_picker, cb_invert_mask]
+                                          cp_color_picker, cb_alpha, cb_invert_mask]
                         btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
                                                    inputs=preview_params,
                                                    outputs=[img_preview])
