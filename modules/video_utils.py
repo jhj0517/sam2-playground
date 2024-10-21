@@ -142,6 +142,7 @@ def create_video_from_frames(
     frame_rate: Optional[int] = None,
     sound_path: Optional[str] = None,
     output_dir: Optional[str] = None,
+    has_alpha: Optional[bool] = None
 ):
     """
     Create a video from frames and save it to the output_path. This needs FFmpeg installed.
@@ -153,8 +154,17 @@ def create_video_from_frames(
         output_dir = TEMP_OUT_DIR
     os.makedirs(output_dir, exist_ok=True)
 
+    if has_alpha:
+        img_mime_type = "png"
+        pix_format = 'yuva420p'
+        out_mime_type = "webm"
+    else:
+        img_mime_type = "jpg"
+        pix_format = 'yuv420p'
+        out_mime_type = "mp4"
+
     num_files = len(os.listdir(output_dir))
-    filename = f"{num_files:05d}.mp4"
+    filename = f"{num_files:05d}.{out_mime_type}"
     output_path = os.path.join(output_dir, filename)
 
     if sound_path is None:
@@ -169,9 +179,9 @@ def create_video_from_frames(
         'ffmpeg',
         '-y',
         '-framerate', str(frame_rate),
-        '-i', os.path.join(frames_dir, "%05d.jpg"),
+        '-i', os.path.join(frames_dir, f"%05d.{img_mime_type}"),
         '-c:v', 'libx264',
-        '-pix_fmt', 'yuv420p',
+        '-pix_fmt', pix_format,
         output_path
     ]
 
