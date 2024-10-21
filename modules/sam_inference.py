@@ -15,7 +15,7 @@ from modules.model_downloader import (
 )
 from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS_WEBUI_PATH, OUTPUT_DIR)
 from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT,
-                               TRANSPARENT_VIDEO_FILE_EXT)
+                               TRANSPARENT_VIDEO_FILE_EXT, TRANSPARENT_COLOR_FILTER)
 from modules.mask_utils import (
     invert_masks,
     save_psd_with_masks,
@@ -398,7 +398,10 @@ class SamInference:
             raise RuntimeError("Error while adding filter to preview")
 
         if output_mime_type is None:
-            output_mime_type = ".mp4"
+            if filter_mode == TRANSPARENT_COLOR_FILTER:
+                output_mime_type = ".mov"
+            else:
+                output_mime_type = ".mp4"
 
         use_alpha = True if output_mime_type in TRANSPARENT_VIDEO_FILE_EXT else False
 
