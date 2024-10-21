@@ -89,12 +89,15 @@ class App:
 
     def on_video_model_change(self,
                               model_type: str,
-                              vid_input: Optional[str]):
+                              vid_input: Optional[str],
+                              progress: gr.Progress = gr.Progress()):
         if not vid_input or vid_input is None:
             return [
                ImagePrompter(label=_("Prompt image with Box & Point"), type='pil', interactive=True, scale=5),
                gr.Slider(label=_("Frame Index"), interactive=False)
             ]
+
+        progress(0, desc=f"Extracting frames...")
 
         self.sam_inf.init_video_inference_state(vid_input=vid_input, model_type=model_type)
         frames = get_frames_from_dir(vid_dir=TEMP_DIR)
