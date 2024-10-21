@@ -156,12 +156,14 @@ def create_video_from_frames(
 
     if has_alpha:
         img_mime_type = "png"
-        pix_format = 'yuva420p'
-        out_mime_type = "webm"
+        pix_format = 'yuva444p10le'
+        out_mime_type = "mov"
+        vid_codec, audio_codec = 'prores_ks', 'aac'
     else:
         img_mime_type = "jpg"
         pix_format = 'yuv420p'
         out_mime_type = "mp4"
+        vid_codec, audio_codec = 'libx264', 'aac'
 
     num_files = len(os.listdir(output_dir))
     filename = f"{num_files:05d}.{out_mime_type}"
@@ -180,7 +182,7 @@ def create_video_from_frames(
         '-y',
         '-framerate', str(frame_rate),
         '-i', os.path.join(frames_dir, f"%05d.{img_mime_type}"),
-        '-c:v', 'libx264',
+        '-c:v', vid_codec,
         '-pix_fmt', pix_format,
         output_path
     ]
@@ -188,7 +190,7 @@ def create_video_from_frames(
     if sound_path is not None:
         command += [
             '-i', sound_path,
-            '-c:a', 'aac',
+            '-c:a', audio_codec,
             '-strict', 'experimental',
             '-b:a', '192k',
             '-shortest'
