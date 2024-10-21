@@ -387,8 +387,8 @@ class SamInference:
             invert_mask (bool): Invert the mask output - used for background masking.
 
         Returns:
-            str: The output video path.
-            str: The output video path.
+            str: The output video path. ( Return to gr.Video )
+            str: The output video path. ( Return to gr.Files )
         """
 
         if self.video_predictor is None or self.video_inference_state is None:
