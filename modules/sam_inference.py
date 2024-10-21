@@ -21,7 +21,8 @@ from modules.mask_utils import (
     create_mask_combined_images,
     create_mask_gallery,
     create_mask_pixelized_image,
-    create_solid_color_mask_image
+    create_solid_color_mask_image,
+    create_alpha_mask_image
 )
 from modules.video_utils import (get_frames_from_dir, create_video_from_frames, get_video_info, extract_frames,
                                  extract_sound, clean_temp_dir, clean_files_with_extension)
@@ -370,6 +371,7 @@ class SamInference:
                               frame_idx: int,
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None,
+                              use_alpha: Optional[bool] = None,
                               invert_mask: bool = False
                               ):
         """
@@ -425,12 +427,15 @@ class SamInference:
             masks = self.format_to_auto_result(masks)
 
             if filter_mode == COLOR_FILTER:
-                filtered_image = create_solid_color_mask_image(orig_image, masks, color_hex)
+                if use_alpha:
+                    filtered_image = create_alpha_mask_image(orig_image, masks)
+                else:
+                    filtered_image = create_solid_color_mask_image(orig_image, masks, color_hex)
 
             elif filter_mode == PIXELIZE_FILTER:
                 filtered_image = create_mask_pixelized_image(orig_image, masks, pixel_size)
 
-            save_image(image=filtered_image, output_dir=TEMP_OUT_DIR)
+            save_image(image=filtered_image, output_dir=TEMP_OUT_DIR, use_alpha=use_alpha)
 
         if len(video_segments) == 1:
             out_image = save_image(image=filtered_image, output_dir=output_dir)
@@ -440,6 +445,7 @@ class SamInference:
             frames_dir=TEMP_OUT_DIR,
             frame_rate=self.video_info.frame_rate,
             output_dir=output_dir,
+            has_alpha=use_alpha
         )
 
         return out_video, out_video
