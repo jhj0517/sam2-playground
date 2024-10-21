@@ -131,12 +131,10 @@ class App:
                             file_vid_input = gr.File(label=_("Upload Input Video"), file_types=IMAGE_FILE_EXT + VIDEO_FILE_EXT)
                             with gr.Row(equal_height=True):
                                 with gr.Column(scale=9):
-                                    with gr.Row():
-                                        vid_frame_prompter = ImagePrompter(label=_("Prompt image with Box & Point"), type='pil',
-                                                                           interactive=True, scale=5)
-                                        img_preview = gr.Image(label=_("Preview"), interactive=False, scale=5)
-
+                                    vid_frame_prompter = ImagePrompter(label=_("Prompt image with Box & Point"), type='pil',
+                                                                       interactive=True, scale=5)
                                     sld_frame_selector = gr.Slider(label=_("Frame Index"), interactive=False)
+                                    img_preview = gr.Image(label=_("Preview"), interactive=False, scale=5)
 
                                 with gr.Column(scale=1):
                                     dd_models = gr.Dropdown(label=_("Model"), value=DEFAULT_MODEL_TYPE,
@@ -159,8 +157,8 @@ class App:
                         with gr.Row():
                             btn_generate = gr.Button(_("GENERATE VIDEO"), variant="primary")
                         with gr.Row():
-                            vid_output = gr.Video(label=_("Output Video"), interactive=False)
-                            with gr.Column():
+                            vid_output = gr.Video(label=_("Output Video"), interactive=False, scale=7)
+                            with gr.Column(scale=2):
                                 output_file = gr.File(label=_("Downloadable Output File"), scale=9)
                                 btn_open_folder = gr.Button(_("📁 Open Output folder"), scale=1)
 
@@ -178,12 +176,14 @@ class App:
                                               outputs=[cp_color_picker, nb_pixel_size, dd_output_mime_type])
 
                         preview_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size,
-                                          cp_color_picker, dd_output_mime_type, cb_invert_mask]
+                                          cp_color_picker, cb_invert_mask]
+                        video_params = [vid_frame_prompter, dd_filter_mode, sld_frame_selector, nb_pixel_size,
+                                        cp_color_picker, dd_output_mime_type, cb_invert_mask]
                         btn_generate_preview.click(fn=self.sam_inf.add_filter_to_preview,
                                                    inputs=preview_params,
                                                    outputs=[img_preview])
                         btn_generate.click(fn=self.sam_inf.create_filtered_video,
-                                           inputs=preview_params,
+                                           inputs=video_params,
                                            outputs=[vid_output, output_file])
                         btn_open_folder.click(fn=lambda: open_folder(os.path.join(self.args.output_dir, "filter")),
                                               inputs=None,
