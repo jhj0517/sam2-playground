@@ -313,7 +313,7 @@ class SamInference:
 
         Args:
             image_prompt_input_data (Dict): The image prompt data.
-            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize"]
+            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize", "Transparent Color (Background Remover)"]
             frame_idx (int): The frame index of the video.
             pixel_size (int): The pixel size for the pixelize filter.
             color_hex (str): The color hex code for the solid color filter.
@@ -363,6 +363,9 @@ class SamInference:
 
         elif filter_mode == PIXELIZE_FILTER:
             image = create_mask_pixelized_image(image, generated_masks, pixel_size)
+
+        else:
+            image = create_alpha_mask_image(image, generated_masks)
 
         return image
 

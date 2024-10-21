@@ -5,6 +5,7 @@ from PIL import Image
 import numpy as np
 from dataclasses import dataclass
 import re
+from pathlib import Path
 
 from modules.logger_util import get_logger
 from modules.constants import SOUND_FILE_EXT, VIDEO_FILE_EXT, IMAGE_FILE_EXT, TRANSPARENT_VIDEO_FILE_EXT
@@ -59,6 +60,10 @@ def extract_sound(
     """
     Extract audio from a video file and save it as a separate sound file. This needs FFmpeg installed.
     """
+    if Path(vid_input).suffix == ".gif":
+        logger.info("Sound extracting process has passed because gif has no sound")
+        return None
+
     os.makedirs(output_temp_dir, exist_ok=True)
     output_path = os.path.join(output_temp_dir, "sound.mp3")
 
@@ -170,6 +175,10 @@ def create_video_from_frames(
         pix_format = "yuva420p"
         vid_codec, audio_codec = "libvpx-vp9", "libvorbis"
 
+    elif output_mime_type == ".gif":
+        pix_format = None
+        vid_codec, audio_codec = "gif", None
+
     num_files = len(os.listdir(output_dir))
     filename = f"{num_files:05d}{output_mime_type}"
     output_path = os.path.join(output_dir, filename)
@@ -188,11 +197,21 @@ def create_video_from_frames(
         '-framerate', str(frame_rate),
         '-i', os.path.join(frames_dir, f"%05d{frame_img_mime_type}"),
         '-c:v', vid_codec,
-        '-pix_fmt', pix_format,
-        output_path
     ]
 
-    if sound_path is not None:
+    if output_mime_type == ".gif":
+        command += [
+            "-filter_complex", "[0:v] palettegen=reserve_transparent=on [p]; [0:v][p] paletteuse",
+            "-loop", "0"
+        ]
+    else:
+        command += [
+            '-pix_fmt', pix_format
+        ]
+
+    command += [output_path]
+
+    if output_mime_type != ".gif" and sound_path is not None:
         command += [
             '-i', sound_path,
             '-c:a', audio_codec,
