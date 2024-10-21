@@ -216,6 +216,39 @@ def create_solid_color_mask_image(
     return final_result
 
 
+def create_alpha_mask_image(
+    image: np.ndarray,
+    masks: List[Dict],
+) -> np.ndarray:
+    """
+    Create an image with alpha masks.
+
+    Args:
+        image: Original image
+        masks: List of mask data
+
+    Returns:
+        Image with solid color masks
+    """
+    transparent, opaque = 0, 255
+    if image.shape[2] == 3:
+        image = np.dstack([image, np.full((image.shape[0], image.shape[1]), opaque, dtype=np.uint8)])
+
+    final_result = image.copy()
+
+    for info in masks:
+        rle = info['segmentation']
+        mask = decode_to_mask(rle)
+
+        final_result[:, :, 3] = np.where(
+            mask > 0,
+            transparent,
+            final_result[:, :, 3]
+        )
+
+    return final_result
+
+
 def insert_psd_layer(
     psd: PsdFile,
     image_data: np.ndarray,
