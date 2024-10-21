@@ -230,9 +230,9 @@ def create_alpha_mask_image(
     Returns:
         Image with solid color masks
     """
-    alpha = 0
+    transparent, opaque = 0, 255
     if image.shape[2] == 3:
-        image = np.dstack([image, np.full((image.shape[0], image.shape[1]), alpha, dtype=np.uint8)])
+        image = np.dstack([image, np.full((image.shape[0], image.shape[1]), opaque, dtype=np.uint8)])
 
     final_result = image.copy()
 
@@ -240,10 +240,10 @@ def create_alpha_mask_image(
         rle = info['segmentation']
         mask = decode_to_mask(rle)
 
-        final_result = np.where(
-            mask[:, :, np.newaxis] > 0,
-            np.dstack([final_result[:, :, :3], np.full(image.shape[:2], alpha)]),
-            final_result
+        final_result[:, :, 3] = np.where(
+            mask > 0,
+            transparent,
+            final_result[:, :, 3]
         )
 
     return final_result
