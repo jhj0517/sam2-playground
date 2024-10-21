@@ -14,7 +14,8 @@ from modules.model_downloader import (
     download_sam_model_url
 )
 from modules.paths import (MODELS_DIR, TEMP_OUT_DIR, TEMP_DIR, MODEL_CONFIGS_WEBUI_PATH, OUTPUT_DIR)
-from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT)
+from modules.constants import (BOX_PROMPT_MODE, AUTOMATIC_MODE, COLOR_FILTER, PIXELIZE_FILTER, IMAGE_FILE_EXT,
+                               TRANSPARENT_VIDEO_FILE_EXT)
 from modules.mask_utils import (
     invert_masks,
     save_psd_with_masks,
@@ -371,7 +372,7 @@ class SamInference:
                               frame_idx: int,
                               pixel_size: Optional[int] = None,
                               color_hex: Optional[str] = None,
-                              use_alpha: Optional[bool] = None,
+                              output_mime_type: Optional[str] = None,
                               invert_mask: bool = False
                               ):
         """
@@ -380,10 +381,11 @@ class SamInference:
 
         Args:
             image_prompt_input_data (Dict): The image prompt data with "image" and "points" keys.
-            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize"]
+            filter_mode (str): The filter mode to apply. ["Solid Color", "Pixelize", "Transparent Color (Background Remover)"]
             frame_idx (int): The frame index of the video.
             pixel_size (int): The pixel size for the pixelize filter.
             color_hex (str): The color hex code for the solid color filter.
+            output_mime_type (str): Output video mime type such '.mp4', '.mov' etc.
             invert_mask (bool): Invert the mask output - used for background masking.
 
         Returns:
@@ -394,6 +396,11 @@ class SamInference:
         if self.video_predictor is None or self.video_inference_state is None:
             logger.exception("Error while adding filter to preview, load video predictor first")
             raise RuntimeError("Error while adding filter to preview")
+
+        if output_mime_type is None:
+            output_mime_type = ".mp4"
+
+        use_alpha = True if output_mime_type in TRANSPARENT_VIDEO_FILE_EXT else False
 
         prompt = image_prompt_input_data["points"]
         if not prompt:
@@ -427,13 +434,13 @@ class SamInference:
             masks = self.format_to_auto_result(masks)
 
             if filter_mode == COLOR_FILTER:
-                if use_alpha:
-                    filtered_image = create_alpha_mask_image(orig_image, masks)
-                else:
-                    filtered_image = create_solid_color_mask_image(orig_image, masks, color_hex)
+                filtered_image = create_solid_color_mask_image(orig_image, masks, color_hex)
 
             elif filter_mode == PIXELIZE_FILTER:
                 filtered_image = create_mask_pixelized_image(orig_image, masks, pixel_size)
+
+            else:
+                filtered_image = create_alpha_mask_image(orig_image, masks)
 
             save_image(image=filtered_image, output_dir=TEMP_OUT_DIR, use_alpha=use_alpha)
 
@@ -445,7 +452,7 @@ class SamInference:
             frames_dir=TEMP_OUT_DIR,
             frame_rate=self.video_info.frame_rate,
             output_dir=output_dir,
-            has_alpha=use_alpha
+            output_mime_type=output_mime_type
         )
 
         return out_video, out_video
