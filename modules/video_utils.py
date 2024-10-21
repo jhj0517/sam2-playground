@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import re
 
 from modules.logger_util import get_logger
-from modules.constants import SOUND_FILE_EXT, VIDEO_FILE_EXT, IMAGE_FILE_EXT
+from modules.constants import SOUND_FILE_EXT, VIDEO_FILE_EXT, IMAGE_FILE_EXT, TRANSPARENT_VIDEO_FILE_EXT
 from modules.paths import TEMP_DIR, TEMP_OUT_DIR
 
 logger = get_logger()
@@ -142,6 +142,7 @@ def create_video_from_frames(
     frame_rate: Optional[int] = None,
     sound_path: Optional[str] = None,
     output_dir: Optional[str] = None,
+    output_mime_type: Optional[str] = None,
 ):
     """
     Create a video from frames and save it to the output_path. This needs FFmpeg installed.
@@ -153,8 +154,24 @@ def create_video_from_frames(
         output_dir = TEMP_OUT_DIR
     os.makedirs(output_dir, exist_ok=True)
 
+    frame_img_mime_type = ".png"
+    pix_format = "yuv420p"
+    vid_codec, audio_codec = "libx264", "aac"
+
+    if output_mime_type is None:
+        output_mime_type = ".mp4"
+
+    output_mime_type = output_mime_type.lower()
+    if output_mime_type == ".mov":
+        pix_format = "yuva444p10le"
+        vid_codec, audio_codec = "prores_ks", "aac"
+
+    elif output_mime_type == ".webm":
+        pix_format = "yuva420p"
+        vid_codec, audio_codec = "libvpx-vp9", "libvorbis"
+
     num_files = len(os.listdir(output_dir))
-    filename = f"{num_files:05d}.mp4"
+    filename = f"{num_files:05d}{output_mime_type}"
     output_path = os.path.join(output_dir, filename)
 
     if sound_path is None:
@@ -169,16 +186,16 @@ def create_video_from_frames(
         'ffmpeg',
         '-y',
         '-framerate', str(frame_rate),
-        '-i', os.path.join(frames_dir, "%05d.jpg"),
-        '-c:v', 'libx264',
-        '-pix_fmt', 'yuv420p',
+        '-i', os.path.join(frames_dir, f"%05d{frame_img_mime_type}"),
+        '-c:v', vid_codec,
+        '-pix_fmt', pix_format,
         output_path
     ]
 
     if sound_path is not None:
         command += [
             '-i', sound_path,
-            '-c:a', 'aac',
+            '-c:a', audio_codec,
             '-strict', 'experimental',
             '-b:a', '192k',
             '-shortest'
