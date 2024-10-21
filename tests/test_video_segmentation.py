@@ -57,14 +57,17 @@ def test_video_segmentation(
     reason="Skipping because this test only works in GPU"
 )
 @pytest.mark.parametrize(
-    "model_name,video_path,gradio_prompt",
+    "model_name,video_path,filter_mode,gradio_prompt",
     [
-        (TEST_MODEL, TEST_VIDEO_PATH, TEST_GRADIO_PROMPT_BOX)
+        (TEST_MODEL, TEST_VIDEO_PATH, COLOR_FILTER, TEST_GRADIO_PROMPT_BOX),
+        (TEST_MODEL, TEST_VIDEO_PATH, PIXELIZE_FILTER, TEST_GRADIO_PROMPT_BOX),
+        (TEST_MODEL, TEST_VIDEO_PATH, TRANSPARENT_COLOR_FILTER, TEST_GRADIO_PROMPT_BOX),
     ]
 )
 def test_filtered_video_creation_pipeline(
     model_name: str,
     video_path: str,
+    filter_mode: str,
     gradio_prompt: np.ndarray,
 ):
     download_test_files()
@@ -81,9 +84,10 @@ def test_filtered_video_creation_pipeline(
 
     out_path, out_path = inferencer.create_filtered_video(
         image_prompt_input_data=prompt_data,
-        filter_mode=COLOR_FILTER,
+        filter_mode=filter_mode,
         frame_idx=0,
         color_hex=DEFAULT_COLOR,
+        pixel_size=DEFAULT_PIXEL_SIZE,
         invert_mask=True
     )
 
