@@ -25,6 +25,8 @@ en: # English
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
 
 ko: # Korean
   Language: 언어
@@ -53,6 +55,8 @@ ko: # Korean
   Output images will be shown here: 분할된 이미지들
   Generated psd file: 생성된 psd 파일
   📁 Open PSD folder: 📁 PSD 출력 폴더 열기
+  Video File Format: 영상 파일 형식
+  Transparent Color (Background Remover): 투명색 (배경 제거용)
 
 ja: # Japanese
   Language: 言語
@@ -81,6 +85,8 @@ ja: # Japanese
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
 
 es: # Spanish
   Language: Idioma
@@ -109,6 +115,8 @@ es: # Spanish
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
 
 fr: # French
   Language: Langue
@@ -137,6 +145,8 @@ fr: # French
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
 
 de: # German
   Language: Sprache
@@ -165,6 +175,8 @@ de: # German
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
 
 zh: # Chinese
   Language: 语言
@@ -193,3 +205,5 @@ zh: # Chinese
   Output images will be shown here: Output images will be shown here
   Generated psd file: Generated psd file
   📁 Open PSD folder: 📁 Open PSD folder
+  Video File Format: Video File Format
+  Transparent Color (Background Remover): Transparent Color (Background Remover)
