@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 import numpy as np
 import gradio as gr
+from gradio_i18n import Translate, gettext as _
 
 from modules.model_downloader import (
     AVAILABLE_MODELS, DEFAULT_MODEL_TYPE,
@@ -328,8 +329,7 @@ class SamInference:
 
         image, prompt = image_prompt_input_data["image"], image_prompt_input_data["points"]
         if not prompt:
-            error_message = ("No prompt data provided. If this is an incorrect flag, "
-                             "Please press the eraser button (on the image prompter) and add your prompts again.")
+            error_message = (_("There's no prompt data"))
             logger.error(error_message)
             raise gr.Error(error_message, duration=20)
 
