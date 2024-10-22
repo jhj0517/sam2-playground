@@ -58,9 +58,9 @@ And for CUDA, if you're not using an Nvidia GPU and CUDA 12.4, edit the [require
 There's a set of shell / batch scripts for installation and running. 
 
 1. Download [`sam2-playground-portable.zip`](https://github.com/jhj0517/sam2-playground/releases/tag/v1.0.0) with the file corresponding to your OS and extract its contents. 
-2. Run `install.bat` or `install.sh` to install dependencies. (This will create a `venv` directory and install dependencies there.)
-3. Start WebUI with `start-webui.bat` or `start-webui.sh` 
-4. To update, run `update.bat` or `update.sh` 
+2. Run `install.bat` or `install.sh` to install dependencies. (It will create a `venv` directory and install dependencies there.)
+3. Start WebUI with `start-webui.bat` or `start-webui.sh` (It will run `python app.py` after activating the `venv`)
+4. To update, run `update.bat` or `update.sh` (It will run `git pull origin master`)
 
 ### Option 2: Docker
 1. Clone the repository
