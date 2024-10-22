@@ -29,6 +29,7 @@ en: # English
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
 
 ko: # Korean
   Language: 언어
@@ -61,6 +62,7 @@ ko: # Korean
   Transparent Color (Background Remover): 투명색 (배경 제거용)
   Extracting frames...: 영상 프레임 추출 중..
   GENERATE PSD: PSD 파일 생성
+  There's no prompt data: 프롬프트 데이터가 없습니다. 방금 막 프레임을 바꾸셨다면, 지우개 버튼으로 프롬프트를 수동으로 지우신 후 다시 그려주세요. 죄송합니다, 아직 고치지 못한 버그입니다.
 
 ja: # Japanese
   Language: 言語
@@ -93,6 +95,7 @@ ja: # Japanese
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
 
 es: # Spanish
   Language: Idioma
@@ -125,6 +128,7 @@ es: # Spanish
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
 
 fr: # French
   Language: Langue
@@ -157,6 +161,7 @@ fr: # French
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
 
 de: # German
   Language: Sprache
@@ -189,6 +194,7 @@ de: # German
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
 
 zh: # Chinese
   Language: 语言
@@ -221,3 +227,4 @@ zh: # Chinese
   Transparent Color (Background Remover): Transparent Color (Background Remover)
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
+  There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
