@@ -127,6 +127,7 @@ class App:
         with self.demo:
             with self.i18n:
                 md_header = gr.Markdown(HEADER, elem_id="md_header")
+                md_prompt_guide = gr.Markdown(_("If you don't know how to prompt"))
 
                 with gr.Tabs():
                     with gr.TabItem(_("Video Segmentation")):

@@ -30,6 +30,7 @@ en: # English
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
 
 ko: # Korean
   Language: 언어
@@ -63,6 +64,7 @@ ko: # Korean
   Extracting frames...: 영상 프레임 추출 중..
   GENERATE PSD: PSD 파일 생성
   There's no prompt data: 프롬프트 데이터가 없습니다. 방금 막 프레임을 바꾸셨다면, 지우개 버튼으로 프롬프트를 수동으로 지우신 후 다시 그려주세요. 죄송합니다, 아직 고치지 못한 버그입니다.
+  If you don't know how to prompt: 프롬프트를 어떻게 넣는지 모르신다면, [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md)를 봐주세요.
 
 ja: # Japanese
   Language: 言語
@@ -96,6 +98,7 @@ ja: # Japanese
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
 
 es: # Spanish
   Language: Idioma
@@ -129,6 +132,7 @@ es: # Spanish
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
 
 fr: # French
   Language: Langue
@@ -162,6 +166,7 @@ fr: # French
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
 
 de: # German
   Language: Sprache
@@ -195,6 +200,7 @@ de: # German
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
 
 zh: # Chinese
   Language: 语言
@@ -228,3 +234,4 @@ zh: # Chinese
   Extracting frames...: Extracting frames...
   GENERATE PSD: GENERATE PSD
   There's no prompt data: There's no prompt data. If you just changed the frame, please remove the drawn points manually with the eraser button and redraw. Sorry, this is a known bug.
+  If you don't know how to prompt: If you don't know how to prompt, see [PROMPT_GUIDE.md](https://github.com/jhj0517/sam2-playground/blob/master/docs/PROMPT_GUIDE.md).
