@@ -7,33 +7,28 @@ Gradio based playground web UI using [facebook/segment-anything-2](https://githu
 [![huggingface](https://img.shields.io/badge/Hugging%20Face-%F0%9F%A4%97%20Spaces-orange?logo=huggingface&labelColor=FFFFE0)](https://huggingface.co/spaces/jhj0517/sam2-playground)
 
 ## Feature
-- Easy green background video by inverting mask
+- Segment video for transparent background or pixelated object
+
 <table>
   <tr>
-    <td align="center"><strong>Green background video</strong></td>
+    <td align="center"><strong>Transparent background</strong></td>
   </tr>
   <tr>
     <td>
-      <video controls autoplay loop src="https://github.com/user-attachments/assets/4155f77f-23e3-4043-a788-d55176e999a0" muted="false"></video>
+      <video controls autoplay loop src="https://github.com/user-attachments/assets/23b7d8b0-8594-4def-b0dc-405bedd53c84" muted="false"></video>
+    </td>
+  </tr>
+    <tr>
+    <td align="center"><strong>Pixelate</strong></td>
+  </tr>
+  <tr>
+    <td>
+      <video controls autoplay loop src="https://github.com/user-attachments/assets/1749893b-cf90-4407-89d7-9aaf13234dcc" muted="false"></video>
     </td>
   </tr>
 </table>
 
-- Add filters to segment parts of a video with pixelated or solid color
-
-<table>
-  <tr>
-    <td align="center"><strong>Pixelize the girl's face</strong></td>
-  </tr>
-  <tr>
-    <td>
-      <video controls autoplay loop src="https://github.com/user-attachments/assets/c5758970-dc15-4bc8-a918-8d3e8e44a73a" muted="false"></video>
-    </td>
-  </tr>
-</table>
-
-
-- Divide segmentation parts of the image into layers and save them as PSD files.
+- Segment image to divide objects into layers and save them as PSD files.
 
 <table>
   <tr>
