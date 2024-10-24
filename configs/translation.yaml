@@ -41,7 +41,7 @@ ko: # Korean
   Preview: 프리뷰
   Model: 모델
   Filter Modes: 필터 모드
-  Solid Color: 단색
+  Solid Color: 단색 (배경 제거용)
   Pixelize: 모자이크
   Pixel Size: 모자이크 픽셀 크기
   invert mask: 분할 영역 반전

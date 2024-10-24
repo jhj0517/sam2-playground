@@ -40,7 +40,7 @@ class App:
         self.image_modes = [AUTOMATIC_MODE, BOX_PROMPT_MODE]
         self.default_mode = BOX_PROMPT_MODE
         self.filter_modes = [PIXELIZE_FILTER, COLOR_FILTER, TRANSPARENT_COLOR_FILTER]
-        self.default_filter = TRANSPARENT_COLOR_FILTER
+        self.default_filter = COLOR_FILTER
         self.default_color = DEFAULT_COLOR
         self.default_pixel_size = DEFAULT_PIXEL_SIZE
         default_hparam_config_path = os.path.join(SAM2_CONFIGS_DIR, "default_hparams.yaml")
@@ -153,8 +153,12 @@ class App:
                                                               visible=self.default_filter == PIXELIZE_FILTER,
                                                               value=self.default_pixel_size)
                                     dd_output_mime_type = gr.Dropdown(label=_("Video File Format"),
-                                                                      choices=TRANSPARENT_VIDEO_FILE_EXT,
-                                                                      value=TRANSPARENT_VIDEO_FILE_EXT[0])
+                                                                      choices=TRANSPARENT_VIDEO_FILE_EXT
+                                                                      if self.default_filter == TRANSPARENT_COLOR_FILTER
+                                                                      else SUPPORTED_VIDEO_FILE_EXT,
+                                                                      value=TRANSPARENT_VIDEO_FILE_EXT[0]
+                                                                      if self.default_filter == TRANSPARENT_COLOR_FILTER
+                                                                      else SUPPORTED_VIDEO_FILE_EXT[0])
                                     cb_invert_mask = gr.Checkbox(label=_("invert mask"), value=_mask_hparams["invert_mask"])
                                     btn_generate_preview = gr.Button(_("GENERATE PREVIEW"))
 
